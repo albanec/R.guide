@@ -55,6 +55,7 @@ print("text")
 # вывод в одну строку 
 cat(i)
 
+
 3.1 Работа с векторами
 
 # задать вектор (структурированный набор значений)
@@ -90,6 +91,13 @@ cumsum()
 
 # количество положительных элементов
 sum(x>0)
+
+# объединение строк
+rbind($имя_строки1=$данные1,
+	  $имя_строки2=$данные2)
+# объединение столбцов
+cbind($имя_столбца1=$данные1,
+	  $имя_столбца2=$данные2)
 
 3.2 Листы
 
@@ -236,6 +244,7 @@ repeat {
 }
 
 # вместо явных циклов
+# применить для каждого элемента в:
 sapply(v, sqrt)		# для векторов
 lapply(v, sqrt)		# для листов
 apply(v, 1, min)	# для матриц (найти min в строке)
@@ -265,8 +274,12 @@ hist(x, breaks=x1, freq=F, xlab="", ylim=c(0, 0.5),
 # огибающая
 lines(density(b3), col="$", lwd=$)
 
+# график рядов из пакета zoo
 
-4. Пакеты 
+plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c(1,1), col=c('blue', 'dark red'))
+
+
+4. Пакеты для работы с временными рядами
 
 	4.1 quantmod
 
@@ -334,7 +347,7 @@ lines(density(b3), col="$", lwd=$)
 	getSymbols("SBER", from="2015-01-01", to=Sys.Date(), src="Finam")
 	# загрузить данные с указанием периода
 		# доступны периоды: 1min, 5min. 10min, 15min, 30min, hour, day, week, month
-	getSymbols("SBER", from=Sys.Date() -1, src="Finam", period="5min")
+	getSymbols("SBER", from=Sys.Date()-1, src="Finam", period="5min")
 
 	# построить график
 	chartSeries(SBER, theme="black")
@@ -358,6 +371,11 @@ lines(density(b3), col="$", lwd=$)
 	getSymbols("EUR", from=Sys.Date()-1, src="mfd", period="hour", auto.assign=FALSE)
 
 	4.3 quantmod
+
+	4.4 xts
+
+	# упорядочить по дате
+	order.by=dt 
 
 5. Простейшее тестирование стратегий
 	
@@ -385,3 +403,304 @@ lines(density(b3), col="$", lwd=$)
 	s$equity <- cumsum(s$ret)
 	plot(s$equity)
 
+	5.2 Пересечение двух скользяшек (в примере - EMA) 
+	
+	data <- getSymbols("GAZP", from="2015-01-01", to="2015-12-01", src="Finam", period="15min", auto.assign=FALSE)
+	head(data)
+	names(data) <- c("Open" , "High" , "Low" , "Close" , "Volume")
+	# вычисляем && записываем в вектор значения нужных EMA
+	data$ema20 <- EMA(Cl(date), n=20)
+	data$ema80 <- EMA(Cl(date), n=80)
+	# входим в позицию
+	data$position <- ifelse(data$ema20 >= data$ema80, 1, -1) 
+	# удаление нечисловых значений
+	data <- na.omit(data)
+	# вычисление && график equity
+	data$ret <- lag(data$position) * ( data$Close - lag(data$Close) )
+	data$ret[1, "ret"] = 0
+	data$equity <- cumsum(data$ret)
+	plot(data.equity)
+
+	5.3 Простейшая оптимизация
+	
+	# создать функцию
+	test.strategy <- function(data, ema1, ema2, plot.show=TRUE) {
+		data$ema1 <- EMA(Cl(data), n=ema1)
+		data$ema2 <- EMA(Cl(data), n=ema2)
+		data$position <- ifelse(data$ema20 >= data$ema80, 1, -1) 
+		data <- na.omit(data)
+		data$ret <- lag(data$position) * ( data$Close - lag(data$Close) )
+		data$ret[1, "ret"] = 0
+		data$equity <- cumsum(data$ret)
+		if (plot.show) plot(data$equity)
+		return(data$equity[[nrow(data)]])	
+	}
+	# задать цикл оптимизации
+	smax <- -99999
+	ema1.opt <- 0
+	ema2.opt <- 0
+	for (ema1 in seq (1, 99, 1) ) {
+		for (ema2 in seq (ema1+1, 100, 1) ) {
+			s <- test.strategy(data, ema1, ema2, FALSE)
+			if (s > smax) {smax <- s
+							ema1.opt <- ema1
+							ema2.opt <- ema2
+			}
+		}
+	if ( ema1 %% 10 == 0 ) cat ( ema1 , " " , sep="" )
+	}
+
+ 	# все пары чисел n1 и n2
+	g <- as.matrix(expand.grid(n1,n2))
+	eq <- apply(g, 1, function(r) test1(data, r[1], r[2], FALSE))
+	# Номер строки , для которой э к в и т и максимальна :
+	opt.ind <- which.max(eq)
+	# Параметры в э то й с т р о к е :
+	g.opt <- g[opt.ind, ]
+	g.opt
+	test1(data, g.opt[1], g.opt[2], TRUE)
+
+	5.3 Учёт накладных расходов
+
+	#
+	# на примере стратегии пересечения цены со скользящей средней
+	#
+	library(rusquant)
+	data <- getSymbols("EURUSD", from=Sys.Date() -3, to=Sys.Date(),
+		src="Finam", period="15min", auto.assign=FALSE)
+	head(data, 3)
+	names(data) <- c("Open", "High", "Low", "Close", "Volume")
+	# можно и так переименовать: colnames(data) <- gsub(".*\\.", "", colnames(data))
+	# копия данных
+	data2 <- data
+	head(data2, 3)
+	# вычеслить EMA
+	data2$ma1 <- EMA( Cl(data), 50) 
+	# параметр нормирования по пунктам
+	pip <- 0.0001
+	# "мёртвая зона" вокруг EMA
+	delta <- 3*pip
+	# алгоритм стратегии
+	data2$pos <- ifelse(data2$Close > data2$ma+delta, 1, 
+						ifelse(data2$Close < data2$ma-delta, -1, 0) )
+	data2 <- na.omit(data2) # убрали строки с NA
+	# результаты сделок
+	data2$ret <- lag(data2$pos)*(data2$Close-lag(data2$Close))/pip
+	data2[1, "ret"] = 0 # в первой строке нулевая прибыль
+	# equity
+	data2$equity <- cumsum(data2$ret) 
+	n <- nrow(data2) # количество строк
+	s <- data2$equity[[n]] # конечная сумма без учёта накладных расходов
+	# расчет накладных расходов
+	# количество сделок (входов)
+	y <- ifelse ( (data2$pos != lag(data2$pos)), abs(data2$pos), 0)	# определение перехода
+	y[1] <- 0 # вместо NA.
+	# k - число сделок
+	k <- sum(y, na.rm=TRUE)+1
+	spread <- 2 # спред 2 пункта .
+	commiss <- 1 # комиссия на круг (в пересчёте на пункты)
+	slip <- 2 # проскальзывание 1 пункт при входе и 1 пункт при выходе
+	# все накладные расходы (в пунктах)
+	overheads <- k*(spread+commiss+slip)
+	# итоговая прибыль/убыток
+	s2 <- s - overheads
+
+	# всё это в виде функции
+	test3 <- function(data, n, pip=0.0001 , delta=3) {
+		data$ma1 <- EMA (Cl(data), n)
+		delta2 <- delta*pip
+		data$pos <- ifelse(	data$Close > data$ma+delta2, 1,
+							ifelse(data$Close < data$ma-delta2, -1, 0) )
+		data <- na.omit(data)
+		data$ret <- lag(data$pos)*(data$Close-lag(data$Close))/pip
+		data[1, "ret"] = 0
+		data$equity <- cumsum(data$ret)
+		m <- nrow(data)
+		s <- data$equity[ [m] ] 
+		y <- ifelse( (data$pos != lag(data$pos)), abs(data$pos), 0 )
+		y[1] <- 0 
+		k <- sum(y, na.rm=TRUE)+1
+		spread <- 2
+		commiss <- 1 
+		slip <- 2
+		overheads <- k*(spread+commiss+slip)
+		s2 <- s-overheads # прибыль с учётом накл. расходов
+		return (c(s, s2, k))
+	}
+
+	5.4 Оптимизация функций с двумя параметрами (опт. двух параметров одновременно)
+    # функцию test3 на период EMA и "мертвой зоны"
+   	n <- seq(10, 300, by=5)
+	delta <- seq(-10, 20, by=1)
+	# матрица тестовых значений
+	g <- as.matrix(expand.grid(n, delta))
+	# тест
+	y <- apply(g, 1, function(r) test3(data, n=r[1], delta=r[2]) )
+	# выделяем строку с equity после учёта комиссий
+	s <- y[2, ]
+	# Ищем максимальный элемент :
+	k.opt <- which.max(s)
+	g.opt <- g[k.opt, ]
+	n.opt <- g.opt[[1]]
+	delta.opt <- g.opt[[2]]
+	n.opt; delta.opt	# вывод данных
+	test3(data, n.opt, delta=delta.opt)	# проверка 
+
+6. Графики функций с 2-мя переменными
+	
+	6.1 Изометрические графики
+
+	y <- x <- seq(-10, 10, length=30)
+	f <- function (x, y) { 
+		r=sqrt(x^2+y^2) 
+		10*sin(r)/r 
+		}
+	# построение матрицы со значениями параметров и функции
+	z = outer(x, y, f) # Получили матрицу 30 x 3 0 .
+	# расцветка графика
+	col <- rainbow(30, start=0.05, end=0.75)
+	# функция рисования графика
+	persp(x, y, z, col=col, theta=55, phi=25)
+
+	# параметры полотна графика (здесь разбиваем полотно на матрицу графиков)
+	par(	mfrow = c(2, 3), # будем выводить графики в матрице 2x3
+			oma = c(0, 0, 0, 0), # поля для всего листа графиков
+			mar = c(0, 0, 0, 0) # поля сверху или справа от графика 
+	) 
+	# графики
+	# 1-й
+	persp(x, y, z, col=’lightgreen’, theta=50, phi=30)	# 1-й
+	# 2-й
+	col <- rainbow(30, start=0 , end = 0.95)
+	persp(x, y, z, col=col , theta=50 , phi=30)
+	# 3-й
+	col <- heat.colors(30)
+	persp(x, y, z, col=col, theta=50, phi=30) 
+	# 4-й
+	col <- terrain.colors(30)
+	persp(x, y, z, col=col, theta=50, phi=30)
+	# 5-й
+	col <- topo.colors(30)
+	persp(x, y, z, col=col, theta=50, phi=30)
+	# 6-й
+	col <- cm.colors(30)
+	persp(x, y, z, col=col, theta=50, phi=30)
+	
+	# пакет rgl
+	library (rgl)
+	persp3d (x, y, z1, col=rainbow(length(x)) )
+
+	6.1 3D-графики 
+
+#####
+	# пакет plot3D
+	#
+	library (plot3D)
+	persp3D (x, y, z1, contour=TRUE)
+
+	# 3D-гистаграмма
+	x2 <- y2 <- seq(-4, 4, by = 0.5)
+	f2 <- function( x2, y2 ) { (25-(x2^2-y2^2) ) }
+	z2 <- outer(x2, y2, f2)
+	par( mfrow = c(1, 1), oma = c(2, 2, 2, 2) )
+	hist3D(x2, y2, z2, border = "black")
+
+	# 2D график (для функции с 2-мя переменными)
+	library (plot3D)
+	image2D (z2, x2, y2)
+	image2D (z2, x2, y2, contour=TRUE)
+
+#####
+	# пакет rgl
+	#
+	library(rgl)
+	rgl.open( ); bg3d("white")
+	plot3d(g[ ,1], z3, g[ ,2], labels=labels, type="s",
+			size=2, lwd=2, col=rainbow(length(g[ , 2])) )
+	identify3d (g [ , 1], z3, g[ , 2], labels=labels)
+	# щёлкаем правой кнопкой мыши по любой точке
+	# средняя кнопка - выход из режима
+	rgl.close() 
+
+#####
+	# пакет car
+	#
+	library ( car )
+	rgl.open()
+	scatter3d(g[ ,1], z3, g[ ,2], labels=labels, neg.res.col="grey", pos.res.col=rainbow(1 0 0 0 ), point.col="black")
+
+7. Учёт сделок
+	
+#####
+	# при работе с временными рядами
+	#
+	# нумирация трейдов
+	TradeID <- function(states) {
+		x <- diff(states); x[1] <- states[1]
+		cumsum( as.numeric( as.logical(abs(x)) & abs(states) )) * abs(states)
+	}
+
+	# учёт входов
+	TradeEntries <- function(states) {
+		x <- diff(states)
+		x[1] <- states[1]
+		as.numeric(as.logical(x) * states)
+	}
+
+	# учёт выходов
+	TradeExits <- function(states) {
+		x <- as.numeric( as.logical( diff(states) * lag(states) ))
+		x[1] <- 0
+		x
+	}
+
+	#смена позиции 
+	TradeCh <- function(states) {
+		x <- diff(states)
+		x[1] <- states[1]
+		return(x)
+	}
+
+	
+##### при работе с векторами
+	#
+	# нумерация трейдов
+	TradeID <- function(states) {
+		cumsum( as.numeric( as.logical( abs(c(states[1], diff(states)))) & abs(states) )) * abs(states)
+	}
+
+	# учёт входов 
+	TradeEntries <- function(states) {
+		as.numeric( as.logical(c(states[1], diff(states))) * states )
+	}
+
+	# учёт выходов
+	TradeExits <- function(states) {
+		as.numeric( c(FALSE, as.logical( diff(states) * states[-length(states)] )))
+	}
+
+	# смена позиции
+	TradeCh <- function(states) {
+		c(states[1], diff(states))
+	}
+
+##### проверка ветора "states" на правильность значений
+	#
+	if(!all( states %in% c(-1,0,1) )) {
+		stop("states must be a numeric vector with -1,0,1")
+	}
+
+##### пересечение линий
+	#
+	# для векторов
+	Сross <- function(x1,x2) {
+		x <- diff(x1>x2)
+		x[1] <- 0
+		x[x<0] <- 0
+		as.logical(c(0,x))
+	}
+	# для рядов
+	Cross <- function(x1,x2) {
+		x <- diff(x1>x2)
+		x[1] <- 0
+	}
