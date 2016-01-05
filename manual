@@ -41,6 +41,8 @@ help($функция)	# в Rstudio - выделить и нажать F11
 body($функция)
 # список параметров функции
 formals($функция)
+# код функции и его корректировка
+fix($функция)
 
 # задание собственной функции
 my.fun1 <- function(x)		1 / (x+1) / sqrt(x)
@@ -71,7 +73,7 @@ rep(1:3, c(1,2,3))
 
 b[1]	# 1-й элемент вектора
 a[2:4]	# элементы с 2 по 4-й
-lenght(v)	# длина вектора 
+length(v)	# длина вектора 
 # с векторами можно работать практически всеми стандартными функциями
 # при сложении/вычитании вектора должны быть кратны друг другу
 
@@ -98,6 +100,13 @@ rbind($имя_строки1=$данные1,
 # объединение столбцов
 cbind($имя_столбца1=$данные1,
 	  $имя_столбца2=$данные2)
+
+# разница элементов вектора
+x <- diff(c)
+
+# последний элемент вектора
+last(x)
+tail(x, 1)
 
 3.2 Листы
 
@@ -704,3 +713,41 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 		x <- diff(x1>x2)
 		x[1] <- 0
 	}
+
+8. Доходность
+
+##### для работы с рядами
+	#
+	library(TTR)
+		# SR (simple return) для элеменов ряда
+		R <- ROC(x, type="discrete")
+		R[1] <- 0
+			# вычислить итоговую прибыль
+			Rn <- cumprod(R + 1) - 1
+			profit <- x[1] * Rn[length(x)]
+
+		# LR (log return)
+		R.log <- ROC(x, type="continuous")
+		R.log[1] <- 0
+			# вычислить итоговую прибыль
+			rn <- cumsum(R.log)
+			profit <- x[1] * (exp(rn[length(x)]) - 1)
+
+	# можно использовать вместо ROC() функцию из библиотеки quantmod
+	library(quantmod)
+		R <- Delt(x, type="arithmetic")	# simple return
+		R <- Delt(x, type="log")		# log return
+
+	# библиотека PerfomanceAnalytics
+	library(PerfomanceAnalytics)
+		# кумулятивная сумма equity = прибыль
+		profit <- Return.cumulative(data$diff, geometric=FALSE)
+		# simple return и прибыль
+		data$SR <- Return.calculate(data$x, method="discrete")
+		data$SR[1] <- 1
+		profit <- Return.cumulative(data$SR, geometric=TRUE)*s1
+		# log return 
+		data$LR <- Return.calculate(data$x, method="log")  
+		data$LR[1] <- 0
+		profit <- (exp(Return.cumulative(data$LR, geometric=FALSE)) - 1) * s1
+		
