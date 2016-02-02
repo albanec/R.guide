@@ -48,14 +48,17 @@ fix($функция)
 my.fun1 <- function(x)		1 / (x+1) / sqrt(x)
 # или так 
 my.fun1 <- function(x) {
-	z <- 1 / (x+1) / sqrt(x)
-	return(z)
-}
+				z <- 1 / (x+1) / sqrt(x)
+				return(z)
+			}
+
+# подключение файла со своим набором функций
+source("123.R")
 
 # оператор вывода
-print("text")
+	print("text")
 # вывод в одну строку 
-cat(i)
+	cat(i)
 
 
 3.1 Работа с векторами
@@ -135,7 +138,6 @@ ISOdate(2014,11,28,19,11,37, tz="GMT")
 # задать временную последовательность
 seq(as.POSIXct("2014-10-10", by=month, length=4))	# зависит от часового пояса
 seq(ISOdate(2014,10,10), ISOdate(2015,10,10), "days")	# GMT время
-
 
 
 Sys.time()	# выводит системную дату и время
@@ -275,7 +277,7 @@ lines(y, y2)
 # нарисовать горизонтальную линию
 abline(h=20, col="red", lwd=2)
 # нарисовать вертикальную линию
-abline(h=20, col="red", lwd=2)
+abline(v=20, col="red", lwd=2)
 
 # гистаграмма
 hist(x, breaks=x1, freq=F, xlab="", ylim=c(0, 0.5),	
@@ -378,6 +380,10 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 	# загрузка данных по тикерам
 		# временные периоды такие же, как на Финаме
 	getSymbols("EUR", from=Sys.Date()-1, src="mfd", period="hour", auto.assign=FALSE)
+	
+	# упорядочить данные
+	order(-s) # по убыванию
+	order(s) # по возрастанию
 
 	4.3 quantmod
 
@@ -412,7 +418,7 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 	s$equity <- cumsum(s$ret)
 	plot(s$equity)
 
-	5.2 Пересечение двух скользяшек (в примере - EMA) 
+	5.2 Пересечение двух MA (в примере - EMA) 
 	
 	data <- getSymbols("GAZP", from="2015-01-01", to="2015-12-01", src="Finam", period="15min", auto.assign=FALSE)
 	head(data)
@@ -462,9 +468,9 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
  	# все пары чисел n1 и n2
 	g <- as.matrix(expand.grid(n1,n2))
 	eq <- apply(g, 1, function(r) test1(data, r[1], r[2], FALSE))
-	# Номер строки , для которой э к в и т и максимальна :
+	# номер строки, для которой эквити максимальна:
 	opt.ind <- which.max(eq)
-	# Параметры в э то й с т р о к е :
+	# параметры в этой строке:
 	g.opt <- g[opt.ind, ]
 	g.opt
 	test1(data, g.opt[1], g.opt[2], TRUE)
@@ -578,7 +584,7 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 	) 
 	# графики
 	# 1-й
-	persp(x, y, z, col=’lightgreen’, theta=50, phi=30)	# 1-й
+	persp(x, y, z, col='lightgreen', theta=50, phi=30)	# 1-й
 	# 2-й
 	col <- rainbow(30, start=0 , end = 0.95)
 	persp(x, y, z, col=col , theta=50 , phi=30)
@@ -617,7 +623,12 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 	# 2D график (для функции с 2-мя переменными)
 	library (plot3D)
 	image2D (z2, x2, y2)
-	image2D (z2, x2, y2, contour=TRUE)
+	image2D (z, n1, n2, contour=TRUE, xlab="n1", ylab="n2")
+		# сохранить настройки текущих графиков
+		old.par <- par()
+		# два графика рядом
+		image2D (z.train, n1, n2, contour=TRUE, xlab="n1", ylab="n2", main="На обучающих данных")
+		image2D (z.test, n1, n2, contour=TRUE, xlab="n1", ylab="n2", main="На тестовых данных")
 
 #####
 	# пакет rgl
@@ -648,7 +659,6 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 		x <- diff(states); x[1] <- states[1]
 		cumsum( as.numeric( as.logical(abs(x)) & abs(states) )) * abs(states)
 	}
-
 	# учёт входов
 	TradeEntries <- function(states) {
 		x <- diff(states)
@@ -675,7 +685,7 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 	#
 	# нумерация трейдов
 	TradeID <- function(states) {
-		cumsum( as.numeric( as.logical( abs(c(states[1], diff(states)))) & abs(states) )) * abs(states)
+		cumsum( as.numeric( as.logical( abs( c(states[1], diff(states) ))) & abs(states) )) * abs(states)
 	}
 
 	# учёт входов 
@@ -702,7 +712,7 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 ##### пересечение линий
 	#
 	# для векторов
-	Сross <- function(x1,x2) {
+	Cross <- function(x1,x2) {
 		x <- diff(x1>x2)
 		x[1] <- 0
 		x[x<0] <- 0
@@ -712,6 +722,8 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 	Cross <- function(x1,x2) {
 		x <- diff(x1>x2)
 		x[1] <- 0
+		x[x<0] <- 0
+		return ( sign(x) )
 	}
 
 8. Доходность
@@ -720,24 +732,24 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 	#
 	library(TTR)
 		# SR (simple return) для элеменов ряда
-		R <- ROC(x, type="discrete")
-		R[1] <- 0
+		data$R <- ROC(data$x, type="discrete")
+		sata$R[1] <- 0
 			# вычислить итоговую прибыль
-			Rn <- cumprod(R + 1) - 1
-			profit <- x[1] * Rn[length(x)]
+			data$equity <- cumprod(data$R + 1) - 1
+			profit <- data$x[[1]]*as.numeric(last(data$equity))
 
 		# LR (log return)
-		R.log <- ROC(x, type="continuous")
-		R.log[1] <- 0
+		data$R.log <- ROC(data$x, type="continuous")
+		data$R.log[1] <- 0
 			# вычислить итоговую прибыль
-			rn <- cumsum(R.log)
-			profit <- x[1] * (exp(rn[length(x)]) - 1)
+			data$equity <- cumsum(data$R.log)
+			profit <- data$x[[1]] * (exp( as.numeric(last(data$equity)) ) - 1)
 
 	# можно использовать вместо ROC() функцию из библиотеки quantmod
 	library(quantmod)
 		R <- Delt(x, type="arithmetic")	# simple return
 		R <- Delt(x, type="log")		# log return
-
+ 
 	# библиотека PerfomanceAnalytics
 	library(PerfomanceAnalytics)
 		# кумулятивная сумма equity = прибыль
@@ -751,3 +763,232 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 		data$LR[1] <- 0
 		profit <- (exp(Return.cumulative(data$LR, geometric=FALSE)) - 1) * s1
 		
+	# торговля с реинвестированием прибыли
+	# количество актива
+	w <- s0 / data$x[[1]]
+	# через абсолютные доходности
+		# количество актива 
+		data$w <- data$state[[1]] * s0/data$x[[1]]
+		data$delta <- 0
+		data$equity.abs <- s0
+		for ( i in 2:nrow(data) ) { 
+			data$delta[i] <- data$w[[i-1]] * ( data$x[[i]] - data$x[[i-1]] )
+			data$equity.abs[i] <- data$equity.abs[[i-1]] + data$delta[[i]]
+			data$w[i] <- data$state[[i]] * data$equity.abs[[i]] / data$x[[i]]
+		}
+		profit.abs <- sum ( data$delta2 )
+	# через относительные доходности 
+		data$R <- ROC(data$x, type="discrete")
+		sata$R[1] <- 0
+		# вычислить итоговую прибыль
+		data$equity <- s0*cumprod(data$R + 1)
+		profit <- as.numeric(last(data$equity) - s0)
+
+9. Источники котировок
+
+	# статистика в .cvs формате
+	finance.yahoo.com/q/hp?s=AAPL
+	www.google.com/finance/historical?q=MSFT
+	www.dukascopy.com/swiss/english/marketwatch/historical/
+	www.finam.ru/profile/forex/eur-usd
+	mfd.ru/export/
+	# возможна выгрузка .cvs данных из trade-программ через меню экспорт:
+	# MetaTrader: Сервис -> Архив котировок (F2) -> выбрать нужную валютную пару, таймфрейм -> Экспорт
+	# Ninja Trader: Tools -> Historical Data Manager -> Export -> выбрать нужный фин.инструмент; тики или минуты; диапазон дат -> Export
+
+	# выгрузка .csv из буфера обмена в R
+	data1 <- read.table( pipe("pbpaste") )
+	# для Win
+	data1 <- read.table("clipboard")
+	# проверка типа данных
+	class(data1)
+	[1] "data.frame"
+	# есди данные с Yahoo, то строки инвертированны, вернуть обратно:
+	data1 <- data1[rev(rownames(data1)), , drop=FALSE]
+
+	# выгрузка данных из файла (данные из MetaTrader)
+	data <- read.table (
+		file="D:/EURUSD1.csv",  # имя файла
+		sep="," ,				# разделитель - запятая
+		header=F ,				# заголовки столбцов отсутствуют
+		as.is=T 
+	)				# не преобразовывать строки в факторы
+	head(data, 3)
+	tm <- strptime (
+		paste ( data [ , 1 ] , sprintf ( "%05s" ,data [ , 2 ] ) ) ,
+		format="%Y.%m.%d %H:%M" , tz="EET" 
+	)
+	head(tm)
+	#
+	# преобразование таблицы в ряд
+	library(xts)
+	Sys.setenv(TZ='UTC') # время - UTC
+	data2 <- xts( x=data[, c(3:6)], order.by=tm, tzone='UTC' )
+	colnames(data2) <- c("Open", "High", "Low", "Close")
+	#
+	# преобразование периодичности
+	data3 = to.period( data2,
+		period='hours',
+		indexAt="startof"
+	)
+	# изменить временное окно
+	win <- '2014-12-01/2014-12-31'
+	data4 <- data3[win]
+
+	# REST API Yahoo finance
+		# список доступных тикеров
+		http://finance.yahoo.com/webservice/v1/symbols/allcurrencies/quote
+		# в JSON формате
+		http://finance.yahoo.com/webservice/v1/symbols/allcurrencies/quote?format=json
+	
+	# загрузка дневных данных 	
+	ticker <- "EUR=X" # обратная валютная пара EUR/USD .
+	start.date <- "2014-10-01"
+	end.date <- Sys.Date()
+	url <- paste0( "http://ichart.finance.yahoo.com/table.csv?s=",
+					ticker,
+				# начальная дата
+					"&a=", as.numeric(substr(start.date, 6, 7) )-1,	# месяц
+					"&b=", substr(start.date, 9, 10),					# день
+					"&c=", substr(start.date, 1, 4),					# год
+				# конечная дата
+					"&d=", as.numeric( substr(end.date, 6, 7) )-1,
+					"&e=", substr(end.date, 9, 10),
+					"&f=", substr(end.date, 1, 4),
+					"&g=d&ignore=.csv", sep=""
+			)
+	data <- read.csv(url, as.is=TRUE)
+	library(xts)
+	data2 <- as.xts( data[, -1], order.by=as.POSIXct(data$Date) )
+	library(quantmod)
+	chartSeries(data2, theme='white')
+
+	# загрузка внутридневных котировк
+		# список доступных тикеров
+		http://in.finance.yahoo.com/lookup
+	ticker <- "EURUSD=X"
+	url <- paste0("http://chartapi.finance.yahoo.com/instrument/1.0/",
+					ticker, "/chartdata;type=quote;range=1d/csv" )
+	# получаем первые 17 строк и удаляем первую строку
+	metadata <- readLines(paste(url, collapse=""), 17)[-1]
+	# создаём список пар "параметр, значение"
+	metadata <- strsplit(metadata, ":")
+	# заменяем "-" в названиях на "_"
+	names(metadata) <- sub( "-", "_", sapply(metadata, '[', 1) )
+	metadata <- lapply( metadata, function(x) strsplit( x[-1], ",") [[1]] )
+	# преобразуем смещение относительно GMT в число
+	metadata$gmtoffset <- as.numeric(metadata$gmtoffset)
+	data <- as.xts( read.zoo(	paste(url, collapse=""), sep=",",
+								header=FALSE, skip=17, FUN=function(i) .POSIXct(as.numeric(i)) 
+							) 
+				)
+	# заголовки столбцов
+	colnames(data) <- metadata$values[-1]
+	# сохраняем метаданные как атрибуты
+	xtsAttributes(data) <- metadata[ c("ticker","Company_Name", "Exchange_Name", "unit", "timezone", "gmtoffset") ]
+
+10. Логика с памятью
+
+	# заменить NA на предыдущий элемент
+		library(zoo)
+		na.locf(x)
+
+	# функция для удаления лишних сигналов 
+		exrem <- function(x) {
+						x$a <- na.locf( x )
+						x$a <- ifelse( is.na(x$a) | is.nan(x$a) | is.infinite(x$a), 0, x$a )
+						ind <- which( x$a != lag(x$a) )
+						x$y <- rep( NA, length(x$a) )
+						x$y[ (ind-1) ] = x$a[ind]
+						return(x$y)
+					}
+
+10.1 Торговая система: Выход стохастика из зон пере-купленности/проданности
+
+	# границы зоны стохастика
+	stlo <- 0.25 
+	sthi <- 0.75
+	# точки пересечения стохастика с границами зоны
+	data$sigUp <- Cross( data4$slowD, stlo, FALSE )
+	data$sigDn <- Cross( sthi, data4$slowD, FALSE )
+	# точки позиций
+	data$sig <- data$sigUp − data4$sigDn
+	data.temp <- data[ data4$sig != 0 ]
+	# убираем лишнее и добавляем очишенные данные в ряд
+	data.temp$sig.clean <- exrem(data.temp$sig)
+	# убираем лишние столбцы
+	data.temp$sig <- NULL
+	data.temp <- na.omit (data.temp)
+	data$sig <- NULL
+	#
+	data.temp2 <- merge.xts(data, data.temp$sig.clean)
+	colnames(data.temp2)[ ncol(data.temp2) ] <- "sig"
+	data.temp2 <- na.locf( data.temp2, "sig", "state" )
+	data.temp2$sig[ is.na(data.temp2$sig) ] <- 0
+	data.temp2$state[ is.na(data.temp2$state) ] <- 0
+	pip <- 0.0001
+	data.temp2$ret <- lag(data.temp2$state) * ( data.temp2$Close−lag(data.temp2$Close) ) / pip
+	data.temp2$ret[1] <- 0
+	data.temp2$equity <- cumsum(data.temp2$ret)
+	#
+	# визуализация
+	chartSeries(data.temp2[ , c("Open", "High", "Low", "Close") ] ,
+				name="EUR/USD H1", theme='white' 
+			)
+	addTA(data.temp2$slowD, col="blue")
+		addLines( h = c(stlo, sthi), on=2, col='red' )
+	addTA( data.temp2$state, yrange=c(-1.2, 1.2) )
+	addTA( data.temp2$equity, col="dark green" )
+	#		
+	zoomChart ( "2014-11-20::" )
+	zooom ( ) # интерактивно
+	zoomChart ( ) # вернуть исходный масштаб
+
+	# доп функции
+	# Функция задержки для векторов и матриц
+
+mylag <- function (m, nlag = 1) {
+  if (is.null(dim(m))) {
+    n = length(m)
+    if (nlag > 0) {
+      m[(nlag + 1):n] = m[1:(n - nlag)]
+      m[1:nlag] = NA
+    }
+    else if (nlag < 0) {
+      m[1:(n + nlag)] = m[(1 - nlag):n]
+      m[(n + nlag + 1):n] = NA
+    }
+  }
+  else {
+    n = nrow(m)
+    if (nlag > 0) {
+      m[(nlag + 1):n, ] = m[1:(n - nlag), ]
+      m[1:nlag, ] = NA
+    }
+    else if (nlag < 0) {
+      m[1:(n + nlag), ] = m[(1 - nlag):n, ]
+      m[(n + nlag + 1):n, ] = NA
+    }
+  }
+  return(m)
+}
+
+# Заменяем NA на предыдущий элемент:
+na.prev <- function(x){
+  f = !is.na(x)
+  f[1] = TRUE
+  ind <- cummax((1:length(x)) * f)
+  return(x[ind])
+}
+
+10.2 Обучение торговой системы 
+	
+	# среднее
+	mean(x)
+	# медиана
+	median(x)
+	# квантиль
+		# для диапазона
+		quantile(x, seq(0,1, by=0.2))
+		# фиксированный 
+		quantile(x, 0.5)
