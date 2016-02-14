@@ -1,0 +1,117 @@
+1. Простейшая работа с рядами (TimeSeries)
+
+install.packages("xts", dependencies=TRUE)
+install.packages("PerformanceAnalytics", dependencies=TRUE)
+install.packages("zoo", dependencies=TRUE)
+
+library("zoo")
+library("xts")
+library("PerformanceAnalytics")
+
+# считать ряд из .csv в zoo формат 
+	aapl <- read.zoo("aapl.csv", sep=",", header = TRUE, format = "%Y-%m-%d")
+
+# 6 первых/последних элементов ряда
+	head(aapl)
+	tail(aapl)
+
+# определить max значение ряда
+	aapl[which.max(aapl)]
+
+# масштабирование ряда
+	aapl_2013 <- window(aapl, start='2013-01-01', end='2013-12-31')
+
+# вычисление разницы элементов ряда (i-й минус (i-1)-й) 
+	diff($переменная)
+
+# лаг-вектор (отстаёт от родительского на k значений)
+	lag($переменная, k=3)
+
+# частотность ряда
+
+2. Анализ и моделирование линейных TS
+
+# вычисление доходностей (SR и LR) (доходности интереснее для исследования, т.к. обычно стационарны, в отличии от цен закрытий)
+	# SR
+	ret_simple <- diff(aapl) / lag(aapl, k = -1) * 100
+	# LR
+	ret_cont <- diff(log(aapl)) * 100
+
+# статистика по ряду (min/max, медиана, стреднее)
+	summary(coredata(ret_simple))
+
+2.1 Модель ARIMA (Autoregressive Integrated Moving Average) (*)
+	# модель Бокса — Дженкинса (1967)
+
+# построение модели состоит из трех этапов:
+# 1. Определение модели (определение значений параметров)
+# 2. Оценка модели
+# 3. Проверка модели на тестовых данных
+
+install.packages("forecast")
+library("forecast")
+	hp_ret <- diff(hp) / lag(hp, k = -1) * 100
+# модель
+# auto.arima() анализирует ряд и автоматически подбирает наиболее оптимальные значения
+	# stationary=TRUE - поиск среди стац. моделей ; seasonal=FALSE - не рассматриваются сезонные модели 
+	mod <- auto.arima(hp_ret, stationary = TRUE, seasonal = FALSE, ic="aic")
+
+# определение учатка, на котором модель работает лучше всего
+	confint(mod)
+# отрисовка графика диагностики
+	tsdiag(mod)
+# реалльные значения ряда 
+	fitted(mod)
+# точность "попадания" модели
+	accuracy(mod)
+
+# прогнозирование с помощью модели
+	predict(mod, n.ahead=3)
+
+# отрисовка спрогнозированных значений со стандартной ошибкой (SE)
+	plot(forecast(mod))
+
+2.2 Коинтеграция
+	# понятие введено Granger (1981) и формализовано Engle and Granger (1987)
+
+# для исследования TS на коинтеграцию используется библиотека "urca"
+	# книжный пример на основе зависимости самолетного топлива и топочного мазута (в ценах USD за галон), для определения оптимального коэф. 
+	# взаимного хэджирования
+
+library("zoo")
+install.packages("urca")
+library("urca")
+
+# загрузка TS, содержащего цены обоих активов
+	prices <- read.zoo("JetFuelHedging.csv", sep = ",", FUN = as.yearmon, format = "%Y-%m", header = TRUE)
+
+# простая линейная модель, описывающая изменение цен на авиа-топливо изменениями топочного мазута
+# lm() строит линейную регрессионную модель и автоматическив подбирает коэффициенты  (т.е. идет оценка краткосрочного взаимного влияния)
+	simple_mod <- lm( diff(prices$JetFuel) ~ diff(prices$HeatingOil) + 0)
+	# параметры рассчитанной модели
+	summary(simple_mod)
+	# анализ результатов показывает, что We obtain a hedge ratio of 0.89059 and a residual standard error of 0.0846. The cross
+	# hedge is not perfect; the resulting hedged portfolio is still risky
+
+# исследуем долгосрочное влияние цен	
+# исследование рядов на стационарность 
+# используем тест Дика-Фуллера (DF-тест)
+	jf_adf <- ur.df(prices$JetFuel, type = "drift")
+	summary(jf_adf)
+	ho_adf <- ur.df(prices$HeatingOil, type = "drift")
+	summary(ho_adf)
+	# допустим, оба ряда нестационарны (полученные DF-коэф <0 и не выходят за пределы допустимых),
+	# т.к. гипотезу о наличии единичных корней нельзя опровергнуть
+# далее исследуем на стационарность "ошибки" регрессионной модели рядов 
+	mod_static <- summary(lm(prices$JetFuel ~ prices$HeatingOil))
+	# "ошибки модели"
+	error <- residuals(mod_static)
+	error_cadf <- ur.df(error, type = "none")
+	summary(error_cadf)
+	# опустим, это ряд стационарен
+# т.о. мы можем применить модель коррекции ошибок (ECM - Error-Correction Model)
+	djf <- diff(prices$JetFuel)
+	dho <- diff(prices$HeatingOil)
+	error_lag <- lag(error, k = -1)
+	mod_ecm <- lm(djf ~ dho + error_lag)
+	summary(mod_ecm)
