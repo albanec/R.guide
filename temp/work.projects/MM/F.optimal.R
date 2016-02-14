@@ -1,7 +1,8 @@
 
-
+# функция генерации рандомного ряда Бернули (вектор сделок)
 X <- rbinom(X.length, 1, X.win.rate)
 
+# функция вычисления профита от сгенерированной выше последовательности сделок при заданном уровне риска и win profit'а
 F.calc <- function (X, risk, win.profit, balance ) {
 	# генерация ряда сделок
 			n <- length(X) 
@@ -20,6 +21,7 @@ F.calc <- function (X, risk, win.profit, balance ) {
 	return ( profit )
 }
 
+# функция вычисляет профит от ряда сделок при разных уровнях риска (возвращает матрицу значений "риск<->профит")
 F.calc2 <- function(X, win.profit, balance, r.hi) {
 	f <- seq(from=0.01, to=r.hi, by=0.01)
 	df.risk = data.frame(f)
@@ -30,6 +32,7 @@ F.calc2 <- function(X, win.profit, balance, r.hi) {
 	return (df.risk)	
 }
 
+# функция вычисляет оптимальный риск для заданной последовательности сделок (возвращает оптимальный риск и профит при нём)
 F.calc3 <- function(X, win.profit, balance, r.hi) {
 			f <- seq(from=0.01, to=r.hi, by=0.01)
 			df.risk = data.frame(f)
@@ -41,6 +44,8 @@ F.calc3 <- function(X, win.profit, balance, r.hi) {
 			return ( c(df.risk$f[y], df.risk$profit[y]) )	
 	}
 
+# итоговая функция тестирования; проводит "rep" тестов, для каждого из которых генерирует уникальную последовательность сделок 
+# и вычисляет оптимальный риск (возвращает матрицу значений "оптимальный риск <-> профит" от каждого теста)
 full.F.test <- function (rep, X.length, X.win.rate, win.profit, balance, r.hi) {
 	z <- rep(NA, rep)
 	t <- data.frame(z)
