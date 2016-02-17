@@ -133,6 +133,6 @@ full.F.test <- function (rep, X.length, X.win.rate, X.win.profit, balance, r.hi,
 		t$profit[i] <- y[2]
 	}
 	t$z <- NULL
-	return (t)t 
+	return (t)
 }
 
