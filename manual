@@ -192,6 +192,15 @@ df[,2:3] # выделить несколько столбцов
 df[2,]	# выделить строку
 df[df$Flag==TRUE]	# выделить строки столбца Flag, в которых значения TRUE
 
+# удалить столбцы с NA
+file <- file[, colSums(is.na(file)) == 0]
+
+# удалить первую строку
+temp.frame <- temp.frame[-1,]
+
+# сортировка по ключевому значению (по убыванию)
+file2 <- file2[order(-file2$profit),]
+
 3.7 Файлы
 
 # Задать текущий каталог
@@ -649,6 +658,10 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 	rgl.open()
 	scatter3d(g[ ,1], z3, g[ ,2], labels=labels, neg.res.col="grey", pos.res.col=rainbow(1 0 0 0 ), point.col="black")
 
+####
+	# пакет Plotly
+	install.packages("plotly")
+
 7. Учёт сделок
 	
 #####
@@ -793,7 +806,7 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 	www.finam.ru/profile/forex/eur-usd
 	mfd.ru/export/
 	# возможна выгрузка .cvs данных из trade-программ через меню экспорт:
-	# MetaTrader: Сервис -> Архив котировок (F2) -> выбрать нужную валютную пару, таймфрейм -> Экспорт
+	# MetaTrader: Сервис -> Архив котировок (F2) -> выбрать нужную валютную пару, таймрм -> Экспорт
 	# Ninja Trader: Tools -> Historical Data Manager -> Export -> выбрать нужный фин.инструмент; тики или минуты; диапазон дат -> Export
 
 	# выгрузка .csv из буфера обмена в R
@@ -811,8 +824,8 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 		file="D:/EURUSD1.csv",  # имя файла
 		sep="," ,				# разделитель - запятая
 		header=F ,				# заголовки столбцов отсутствуют
-		as.is=T 
-	)				# не преобразовывать строки в факторы
+		as.is=T 				# не преобразовывать строки в факторы
+	)				
 	head(data, 3)
 	tm <- strptime (
 		paste ( data [ , 1 ] , sprintf ( "%05s" ,data [ , 2 ] ) ) ,
@@ -820,6 +833,9 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 	)
 	head(tm)
 	#
+	# замена "," на "."
+	temp.frame$var1 <- as.numeric( gsub("\\,", ".", file[[var1]]) )
+ 	#
 	# преобразование таблицы в ряд
 	library(xts)
 	Sys.setenv(TZ='UTC') # время - UTC
