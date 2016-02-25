@@ -34,7 +34,7 @@ cat(sep = "\n", "############",
 		cat("profit: ", ".......... ", profit, "\n")
 
 # функция-парсер
-parse.csv <- function (file.path=file.path, var1=26, var2=27, var3=28, profit=profit) {
+parse.csv <- function (file.path=file.path, var1=26, var2=27, var3=28, profit=profit, sort=TRUE, var.names=TRUE) {
 	# подгрузка файлов 
 		file <- read.table(file=file.path, header=F, sep = ";", as.is=T)   
 
@@ -69,14 +69,19 @@ parse.csv <- function (file.path=file.path, var1=26, var2=27, var3=28, profit=pr
 		temp.frame$profit <- as.numeric( gsub("\\,", ".", file[[profit]]) )
 		temp.frame$temp.frame <- NULL
 		# сортировка по профиту
-		temp.frame <- temp.frame[order(-temp.frame$profit),]
-		colnames(temp.frame) <- c(var1.name, var2.name, var3.name, profit.name)
+		if (sort==TRUE) {
+			temp.frame <- temp.frame[order(-temp.frame$profit),]	
+		}
+		if (var.names==TRUE) {
+			colnames(temp.frame) <- c(var1.name, var2.name, var3.name, profit.name)	
+		}
+		
 	cat(sep = "\n", "############",
 						"Готово.", 
 					"############" )
 	
 	return (temp.frame)
-}	
+}
 
 # функция-квантиль 
 quant.file <- function (data, var, q) {
