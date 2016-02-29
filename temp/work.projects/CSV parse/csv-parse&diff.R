@@ -10,6 +10,8 @@ parse.csv <- function (file.path=file.path, var1=26, var2=27, var3=28, profit=pr
 		var2.name <- file[[1, var2]]
 		var3.name <- file[[1, var3]]
 		profit.name <- file[[1, profit]] 
+		cat( "############", "\n"
+			"Парсинг файла:", ".......... " file.path, "\n")
 		cat(sep = "\n", "############",
 						"Выбраны переменные & тепловой параметр:",
 						"" )
@@ -19,7 +21,7 @@ parse.csv <- function (file.path=file.path, var1=26, var2=27, var3=28, profit=pr
 		cat("profit: ", ".......... ", profit.name, "\n")
 	
 	cat(sep = "\n", "############",
-						"Парсинг", 
+						"Парсинг ......", 
 						"" )
 	# выборка данных 
 		# чистим от лишнего
@@ -51,30 +53,29 @@ parse.csv <- function (file.path=file.path, var1=26, var2=27, var3=28, profit=pr
 }
 
 # функция-квантиль 
-quant.file <- function (data, var, q) {
-	q.value <- quantile(data[[var]], q) 
-	n <- match(q.value, data[[var]]) 
-	t <- rep(NA, n)
-	temp.frame <- data.frame(t, t, t, t)
-	colnames(temp.frame) <- colnames(data)
-	for (i in 1:n) {
-		temp.frame[i, ] <- data[i, ]
-	}
-	
+quant.file <- function (data, var, q.hi, q.low=0, two.q=FALSE) {
+	q.hi.value <- quantile(data[[var]], q.hi) 
+	n.hi <- match(q.hi.value, data[[var]]) 
+	t <- ncol(data)
+	if (two.q == TRUE) {
+		n.low <- match(q.low.value, data[[var]])
+		temp.frame <- matrix(NA, ncol=t, nrow=abs(n.hi - n.low) )
+		temp.frame <- data.frame(temp.frame)
+		colnames(temp.frame) <- colnames(data)
+		for (i in n.low:n.hi) {
+			temp.frame[i, ] <- data[i, ]
+			}	
+		} 
+		else {
+			temp.frame <- matrix(NA, ncol=t, nrow=n.hi )
+			temp.frame <- data.frame(temp.frame)
+			colnames(temp.frame) <- colnames(data)
+			for (i in 1:n.hi) {
+				temp.frame[i, ] <- data[i, ]
+				}		
+		}
 	return (temp.frame)
 }
-
-###################################################
-###################################################
-
-profit <- 24
-
-
-file1 <- parse.csv(file.path=file.path1, var1=26, var2=27, var3=28, profit=profit, sort=FALSE, var.names=FALSE)
-file2 <- parse.csv(file.path=file.path2, var1=26, var2=27, var3=28, profit=profit, sort=FALSE, var.names=FALSE)
-
-temp.file1 <- file1
-temp.file2 <- file2
  
 # функция сравнения (выдает матрицу сопоставления)
 compare.df <- function (file1, file2 ) {
@@ -103,11 +104,35 @@ compare.df <- function (file1, file2 ) {
 		file2 <- l[t2,]
 	# вычесление изменения профита
 		file1$profit2 <- file2$profit
-		file1$profit.dif <- (file1$profit - file1$profit2)
-
+		file1$profit.dif <- abs(file1$profit - file1$profit2)
 }
 
+###################################################
+							###################################################
 
- system.time({
- 	
- })
+profit <- 3
+file.path1 <- ""
+file.path2 <- ""
+
+file1 <- parse.csv(file.path=file.path1, var1=26, var2=27, var3=28, profit=profit, sort=FALSE, var.names=FALSE)
+file2 <- parse.csv(file.path=file.path2, var1=26, var2=27, var3=28, profit=profit, sort=FALSE, var.names=FALSE)
+
+temp.data <- compare.df(file1, file2)
+
+q.hi <- ?; q.low <- ?
+temp.data <- quant.file(data, var, q.hi, q.low, two.q=TRUE)
+
+
+# график
+mycolors <-  rainbow(30, start=0.3, end=0.95)
+var1.name <- colnames(parse.file)[1]
+var2.name <- colnames(parse.file)[2]
+var3.name <- colnames(parse.file)[3]
+p <- plot_ly(x=parse.file[[1]], y=parse.file[[2]], z=parse.file[[3]], type="scatter3d", mode="markers", color=parse.file[[4]], colors=mycolors) %>% 
+	layout(title = "Тепловая карта", 
+		scene = list( 
+			xaxis = list(title = "var1.name" ),
+           	yaxis = list(title = "var2.name" ), 
+           	zaxis = list(title = "var3.name" )
+         	) 
+        )
