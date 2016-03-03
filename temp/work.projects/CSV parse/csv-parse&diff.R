@@ -10,8 +10,8 @@ parse.csv <- function (file.path=file.path, var1=26, var2=27, var3=28, profit=pr
 		var2.name <- file[[1, var2]]
 		var3.name <- file[[1, var3]]
 		profit.name <- file[[1, profit]] 
-		cat( "############", "\n"
-			"Парсинг файла:", ".......... " file.path, "\n")
+		cat( "############", "\n",
+			"Парсинг файла:", ".......... ", file.path, "\n")
 		cat(sep = "\n", "############",
 						"Выбраны переменные & тепловой параметр:",
 						"" )
@@ -39,10 +39,14 @@ parse.csv <- function (file.path=file.path, var1=26, var2=27, var3=28, profit=pr
 		temp.frame$temp.frame <- NULL
 		# сортировка по профиту
 		if (sort==TRUE) {
-			temp.frame <- temp.frame[order(-temp.frame$profit),]	
+			temp.frame <- temp.frame[order(-temp.frame$profit),]
+			cat( "############", "\n",
+			"Сортировка по данных по profit'у", "\n")	
 		}
 		if (var.names==TRUE) {
 			colnames(temp.frame) <- c(var1.name, var2.name, var3.name, profit.name)	
+			cat( "############", "\n",
+			"Столбцы проименованы", "\n")
 		}
 		
 	cat(sep = "\n", "############",
@@ -53,12 +57,16 @@ parse.csv <- function (file.path=file.path, var1=26, var2=27, var3=28, profit=pr
 }
 
 # функция-квантиль 
-quant.file <- function (data, var, q.hi, q.low=0, two.q=FALSE) {
-	q.hi.value <- quantile(data[[var]], q.hi) 
-	n.hi <- match(q.hi.value, data[[var]]) 
+quant.file <- function (data, var, q.hi=0, q.low=0, two=FALSE, low=FALSE, hi=FALSE) {
 	t <- ncol(data)
-	if (two.q == TRUE) {
-		n.low <- match(q.low.value, data[[var]])
+	if (two == TRUE) {
+		# подготовка данных
+			data <- data[order(-data[[var]]), ]
+		# вычисление квантилей
+			q.hi.value <- quantile(data[[var]], q.hi) 
+			n.hi <- match(q.hi.value, data[[var]]) 
+			q.low.value <- quantile(data[[var]], q.low) 
+			n.low <- match(q.low.value, data[[var]])
 		temp.frame <- matrix(NA, ncol=t, nrow=abs(n.hi - n.low) )
 		temp.frame <- data.frame(temp.frame)
 		colnames(temp.frame) <- colnames(data)
@@ -66,14 +74,29 @@ quant.file <- function (data, var, q.hi, q.low=0, two.q=FALSE) {
 			temp.frame[i, ] <- data[i, ]
 			}	
 		} 
-		else {
-			temp.frame <- matrix(NA, ncol=t, nrow=n.hi )
-			temp.frame <- data.frame(temp.frame)
-			colnames(temp.frame) <- colnames(data)
-			for (i in 1:n.hi) {
-				temp.frame[i, ] <- data[i, ]
-				}		
+	if (hi == TRUE) {
+			data <- data[order(-data[[var]]), ]
+			q.hi.value <- quantile(data[[var]], q.hi) 
+			n.hi <- match(q.hi.value, data[[var]]) 
+		temp.frame <- matrix(NA, ncol=t, nrow=n.hi )
+		temp.frame <- data.frame(temp.frame)
+		colnames(temp.frame) <- colnames(data)
+		for (i in 1:n.hi) {
+			temp.frame[i, ] <- data[i, ]
+			}		
 		}
+	if (low==TRUE) {
+			data <- data[order(data[[var]]), ]		# сортировка по возрастанию
+			q.low.value <- quantile(data[[var]], q.low) 
+			n.low <- match(q.low.value, data[[var]])
+		temp.frame <- matrix(NA, ncol=t, nrow= n.low )
+		temp.frame <- data.frame(temp.frame)
+		colnames(temp.frame) <- colnames(data)
+		for (i in 1:n.low) {
+			temp.frame[i, ] <- data[i, ]
+			}	
+		}
+	#	
 	return (temp.frame)
 }
  
@@ -102,15 +125,20 @@ compare.df <- function (file1, file2 ) {
 		t2 <- duplicated(l$var0)
 		file1 <- l[t1,]
 		file2 <- l[t2,]
-	# вычесление изменения профита
+	# вычесление изменения профита и суммы за два периода
 		file1$profit2 <- file2$profit
 		file1$profit.dif <- abs(file1$profit - file1$profit2)
+		file1$profit.sum <- (file1$profit + file1$profit2)
+		file1$var0 <- NULL
+		file1$type <- NULL
+	#
+	return(file1)
 }
 
 ###################################################
 							###################################################
 
-profit <- 3
+profit <- 24
 file.path1 <- ""
 file.path2 <- ""
 
@@ -120,15 +148,15 @@ file2 <- parse.csv(file.path=file.path2, var1=26, var2=27, var3=28, profit=profi
 temp.data <- compare.df(file1, file2)
 
 q.hi <- ?; q.low <- ?
-temp.data <- quant.file(data, var, q.hi, q.low, two.q=TRUE)
-
+temp.data <- quant.file(data=temp.data, var=6, q.low=0.2, low=TRUE)
+temp.data <- temp.data[order(-temp.data$profit.sum),]
 
 # график
 mycolors <-  rainbow(30, start=0.3, end=0.95)
-var1.name <- colnames(parse.file)[1]
-var2.name <- colnames(parse.file)[2]
-var3.name <- colnames(parse.file)[3]
-p <- plot_ly(x=parse.file[[1]], y=parse.file[[2]], z=parse.file[[3]], type="scatter3d", mode="markers", color=parse.file[[4]], colors=mycolors) %>% 
+var1.name <- colnames(temp.data)[1]
+var2.name <- colnames(temp.data)[2]
+var3.name <- colnames(temp.data)[3]
+p <- plot_ly(x=temp.data[[1]], y=temp.data[[2]], z=temp.data[[3]], type="scatter3d", mode="markers", color=temp.data[[7]], colors=mycolors) %>% 
 	layout(title = "Тепловая карта", 
 		scene = list( 
 			xaxis = list(title = "var1.name" ),
