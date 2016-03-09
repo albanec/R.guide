@@ -416,7 +416,7 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 	s$sma20 <- SMA(Cl(s), 20)
 	# необходимо определить, какую позицию открывать, исходя из пересечения SMA графиком цен
 	# выбранную позицию записываем в доп. столбец
-	s$position(ifelse(Cl(s)>s$sma20, 1, -1x	))
+	s$position(ifelse(Cl(s)>s$sma20, 1, -1	))
 	# убрать из вектора строки-не числа
 	# s <- s[!is.na(s$position),]
 	s <- na.omit(s)
