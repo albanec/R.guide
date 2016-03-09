@@ -2,11 +2,15 @@ library("rusquant")
 
 
 # загрузка данных
-temp.data <- getSymbols("SiH6", from="2015-01-01", to=Sys.Date(), period="5min", src="Finam", auto.assign=FALSE)
-names(temp.data) <- c("Open" , "High" , "Low" , "Close" , "Volume")
-data <- temp.data
-head(data, 3)
 
+# дата в формате "2015-01-01"
+get.data <- function (ticker="SiH6", from.date, to.date=Sys.Date(), frame="15min") {
+	data <- getSymbols(ticker, from=from.date, to=to.date, period=frame, src="Finam", auto.assign=FALSE)
+	names(data) <- c("Open" , "High" , "Low" , "Close" , "Volume")
+	return(data)
+	}
+data <- temp.data
+head(temp.data, 3)
 ###
 Cross <- function(x1,x2) {
 		x <- diff(x1>x2)
@@ -15,16 +19,25 @@ Cross <- function(x1,x2) {
 	return(sign(x))
 	}
 # добавляем индикаторы
-	indicators <- function (data, slow.period, fast.period) {
+	indicators <- function (data, slow.period, fast.period, accel.start, accel.max) {
 		data$sma <- SMA(Cl(data), slow.period)
 		data$fma <- SMA(Cl(data), fast.period)
 		data$sar <- SAR(data, accel = c(accel.start, accel.max))
 	return(data)
 	}
+
 # описание стратегии
 	strategy <- function (data) {
-		data$sig.sma <- ifelse(data$fma > data$sma, 1, -1)
-		data$sigUP <- Cross(data$Close, data$sar)
+		data$sig.sma <- ifelse(data$fma > data$sma, 1, 
+								ifelse(data$fma < data$sma, -1, 0))
+		data$sig.sar <- ifelse(
+			data$Close > data$sar, 1, 
+				ifelse(data$Close < data$sar, -1, 0)
+			)
+		data$pos <- sign(data$sig.sma + data$sig.sar)
+		
+
+
 		data$sigDN <- Cross(data$sar, data$Close)
 		# точки позиций
 			data$sig.sar <- (data$sigUp - data$sigDn)
