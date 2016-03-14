@@ -748,7 +748,7 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 	library(TTR)
 		# SR (simple return) для элеменов ряда
 		data$R <- ROC(data$x, type="discrete")
-		sata$R[1] <- 0
+		data$R[1] <- 0
 			# вычислить итоговую прибыль
 			data$equity <- cumprod(data$R + 1) - 1
 			profit <- data$x[[1]]*as.numeric(last(data$equity))
