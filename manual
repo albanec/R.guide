@@ -791,7 +791,7 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 			data$equity.abs[i] <- data$equity.abs[[i-1]] + data$delta[[i]]
 			data$w[i] <- data$state[[i]] * data$equity.abs[[i]] / data$x[[i]]
 		}
-		profit.abs <- sum ( data$delta2 )
+		profit.abs <- sum(data$delta2)
 	# через относительные доходности 
 		data$R <- ROC(data$x, type="discrete")
 		sata$R[1] <- 0
@@ -930,7 +930,7 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 	data$sigUp <- Cross( data4$slowD, stlo, FALSE )
 	data$sigDn <- Cross( sthi, data4$slowD, FALSE )
 	# точки позиций
-	data$sig <- data$sigUp − data4$sigDn
+	data$sig <- data$sigUp - data4$sigDn
 	data.temp <- data[ data4$sig != 0 ]
 	# убираем лишнее и добавляем очишенные данные в ряд
 	data.temp$sig.clean <- exrem(data.temp$sig)
@@ -945,7 +945,7 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 	data.temp2$sig[ is.na(data.temp2$sig) ] <- 0
 	data.temp2$state[ is.na(data.temp2$state) ] <- 0
 	pip <- 0.0001
-	data.temp2$ret <- lag(data.temp2$state) * ( data.temp2$Close−lag(data.temp2$Close) ) / pip
+	data.temp2$ret <- lag(data.temp2$state) * ( data.temp2$Close-lag(data.temp2$Close) ) / pip
 	data.temp2$ret[1] <- 0
 	data.temp2$equity <- cumsum(data.temp2$ret)
 	#
