@@ -47,65 +47,53 @@ returns.calc <- function(data, pip, s0=0, abs=FALSE, SR=FALSE, LR=FALSE, reinves
 	if (abs==TRUE) { 	
 		if (reinvest==TRUE) {
 			data$w <- data$state[[1]] * s0/data$Close[[1]]
-			# data$w <- order(data$w, 0)
-			data$ret <- 0
+			data$w <- round(data$w, 0)
 			data$equity <- s0
-			data$delta <- 0
+			data$margin <- 0
 			for ( i in 2:nrow(data) ) { 
-				data$delta[i] <- data$w[[i-1]] * ( data$Close[[i]] - data$Close[[i-1]] )
-				data$equity[i] <- (data$equity[[i-1]] + data$delta[[i]]) / pip
+				data$margin[i] <- data$w[[i-1]] * ( data$Close[[i]] - data$Close[[i-1]] )
+				data$equity[i] <- (data$equity[[i-1]] + data$margin[[i]]) / pip
 				data$w[i] <- data$state[[i]] * data$equity[[i]] / data$Close[[i]]
-				# data$w[i] <- round(data$w[i], 0)
+				data$w[i] <- round(data$w[i], 0)
 			} 
 		} else {
-			data$ret <- lag(data$state) * ( data$Close-lag(data$Close) ) / pip
-			data$ret[1] <- 0
-			data$equity <- cumsum(data$ret)
+			data$w <- 1 
+			data$margin <- lag(data$state) * ( data$Close-lag(data$Close) ) / pip
+			data$margin[1] <- 0
+			data$equity <- cumsum(data$margin)
 		}
 	}
 	if (SR==TRUE) {
 		if (reinvest==TRUE) {
-			data$SR <- Delt(data$Close, type="arithmetic")
+			data$SR <- lag(data$state)*Delt(data$Close, type="arithmetic")
 			data$SR[1] <- 0
-			data$equity <- s0*cumprod(data$SR + 1)
+			data$margin <- cumprod(data$SR + 1) 
+			data$margin[1] <- 0
+			data$equity <- s0*data$margin
 		} else {
-			data$SR <- Delt(data$Close, type="arithmetic")
+			data$SR <- lag(data$state)*Delt(data$Close, type="arithmetic")
 			data$SR[1] <- 0
-			data$equity <- cumprod(data$SR + 1) - 1
+			data$margin <- cumprod(data$SR + 1) - 1
+			data$equity <- data$Close[[1]] * as.numeric(data$margin)
 		}
 	}
 	if (LR==TRUE) {
 		#if (reinvest==TRUE) {
 			#
 		#} else {
-			data$LR <- Delt(data$x, type="log")
+			data$LR <- lag(data$state)*Delt(data$x, type="log")
 			data$LR[1] <- 0
-			data$equity <- cumsum(data$LR)	
+			data$margin <- cumsum(data$LR)
+			data$equity <- data$Close[[1]] * (exp(as.numeric(last(data$margin))) - 1)
 		#}
 	}
 	return(data)
 }
-profit.calc <- function(data, s0=0, abs=FALSE, SR=FALSE, LR=FALSE, reinvest=FALSE) {
-	if (abs==TRUE) {
-		if (reinvest==TRUE) {
-			profit <- as.numeric(last(data$equity) - s0)		
-		} else {
-			profit <- as.numeric(last(data$delta))	
-		}
-	}
-	if (SR==TRUE) {
-		if (reinvest==TRUE) {
-			profit <- as.numeric(last(data$equity) - s0)		
-		} else {
-			profit <- data$Close[[1]] * as.numeric(last(data$equity))
-		}
-	}
-	if (LR==TRUE) {
-		#if (reinvest==TRUE) {
-			#
-		#} else {
-		profit <- data$Close[[1]] * (exp(as.numeric(last(data$equity))) - 1)	
-		#}
+profit.calc <- function(data, s0=0, reinvest=FALSE) {
+	if (reinvest==TRUE) {
+		profit <- as.numeric(last(data$equity) - s0)		
+	} else {
+		profit <- as.numeric(last(data$equity))	
 	}
 	return (profit)
 }
@@ -122,15 +110,6 @@ head(temp.data, 3)
 #
 data <- strategy.psar.2sma(data=data, slow.sma=20, fast.sma=8)
 #
-data11 <- returns.calc(data=data, pip=1, abs=TRUE, reinvest=FALSE)
-data12 <- returns.calc(data=data, pip=1, s0=100000, abs=TRUE, reinvest=TRUE)
-profit11 <- profit.calc(data=data11, abs=TRUE, reinvest=FALSE)
-profit12 <- profit.calc(data=data12, s0=100000, abs=TRUE, reinvest=TRUE)
+data <- returns.calc(data=data, pip=1, abs=TRUE, reinvest=FALSE)
+profit <- profit.calc(data=data, reinvest=FALSE)
 #
-data21 <- returns.calc(data=data, pip=1, SR=TRUE, reinvest=FALSE)
-data22 <- returns.calc(data=data, pip=1, s0=100000, SR=TRUE, reinvest=TRUE)
-profit11 <- profit.calc(data=data21, SR=TRUE, reinvest=FALSE)
-profit12 <- profit.calc(data=data22, s0=100000, SR=TRUE, reinvest=TRUE)
-#
-data31 <- returns.calc(data=data, pip=1, LR=TRUE, reinvest=FALSE)
-profit31 <- profit.calc(data=data31, s0=100000, LR=TRUE)

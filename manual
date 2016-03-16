@@ -670,28 +670,28 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 	# при работе с временными рядами
 	#
 	# нумирация трейдов
-	TradeID <- function(states) {
-		x <- diff(states); x[1] <- states[1]
-		cumsum( as.numeric( as.logical(abs(x)) & abs(states) )) * abs(states)
+	TradeID <- function(state) {
+		x <- diff(state); x[1] <- state[1]
+		cumsum( as.numeric( as.logical(abs(x)) & abs(state) )) * abs(state)
 	}
 	# учёт входов
-	TradeEntries <- function(states) {
-		x <- diff(states)
-		x[1] <- states[1]
-		as.numeric(as.logical(x) * states)
+	TradeEntries <- function(state) {
+		x <- diff(state)
+		x[1] <- state[1]
+		as.numeric(as.logical(x) * state)
 	}
 
 	# учёт выходов
-	TradeExits <- function(states) {
-		x <- as.numeric( as.logical( diff(states) * lag(states) ))
+	TradeExits <- function(state) {
+		x <- as.numeric( as.logical( diff(state) * lag(state) ))
 		x[1] <- 0
 		x
 	}
 
 	#смена позиции 
-	TradeCh <- function(states) {
-		x <- diff(states)
-		x[1] <- states[1]
+	TradeCh <- function(state) {
+		x <- diff(state)
+		x[1] <- state[1]
 		return(x)
 	}
 
@@ -699,29 +699,29 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 ##### при работе с векторами
 	#
 	# нумерация трейдов
-	TradeID <- function(states) {
-		cumsum( as.numeric( as.logical( abs( c(states[1], diff(states) ))) & abs(states) )) * abs(states)
+	TradeID <- function(state) {
+		cumsum( as.numeric( as.logical( abs( c(state[1], diff(state) ))) & abs(state) )) * abs(state)
 	}
 
 	# учёт входов 
-	TradeEntries <- function(states) {
-		as.numeric( as.logical(c(states[1], diff(states))) * states )
+	TradeEntries <- function(state) {
+		as.numeric( as.logical(c(state[1], diff(state))) * state )
 	}
 
 	# учёт выходов
-	TradeExits <- function(states) {
-		as.numeric( c(FALSE, as.logical( diff(states) * states[-length(states)] )))
+	TradeExits <- function(state) {
+		as.numeric( c(FALSE, as.logical( diff(state) * state[-length(state)] )))
 	}
 
 	# смена позиции
-	TradeCh <- function(states) {
-		c(states[1], diff(states))
+	TradeCh <- function(state) {
+		c(state[1], diff(state))
 	}
 
-##### проверка ветора "states" на правильность значений
+##### проверка ветора "state" на правильность значений
 	#
-	if(!all( states %in% c(-1,0,1) )) {
-		stop("states must be a numeric vector with -1,0,1")
+	if(!all( state %in% c(-1,0,1) )) {
+		stop("state must be a numeric vector with -1,0,1")
 	}
 
 ##### пересечение линий
@@ -747,14 +747,14 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 	#
 	library(TTR)
 		# SR (simple return) для элеменов ряда
-		data$R <- ROC(data$x, type="discrete")
-		data$R[1] <- 0
+		data$SR <- lag(data$state)*ROC(data$x, type="discrete")
+		data$SR[1] <- 0
 			# вычислить итоговую прибыль
 			data$equity <- cumprod(data$R + 1) - 1
 			profit <- data$x[[1]]*as.numeric(last(data$equity))
 
 		# LR (log return)
-		data$R.log <- ROC(data$x, type="continuous")
+		data$R.log <- lag(data$state) * ROC(data$x, type="continuous")
 		data$R.log[1] <- 0
 			# вычислить итоговую прибыль
 			data$equity <- cumsum(data$R.log)
@@ -793,7 +793,7 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 		}
 		profit.abs <- sum(data$delta2)
 	# через относительные доходности 
-		data$R <- ROC(data$x, type="discrete")
+		data$R <- data$state  * ROC(data$x, type="discrete")
 		sata$R[1] <- 0
 		# вычислить итоговую прибыль
 		data$equity <- s0*cumprod(data$R + 1)
@@ -1010,3 +1010,12 @@ na.prev <- function(x){
 		quantile(x, seq(0,1, by=0.2))
 		# фиксированный 
 		quantile(x, 0.5)
+
+11. Эффективность ТС
+	11.1 Коэффициенты
+	
+		library(PerformanceAnalytics)
+		# SharpeRatio {PerformanceAnalytics}
+			# на вход подается итоговая SR margin за период
+			R <- as.numeric(last(data$margin))
+			SharpeRatio(R, Rf = 0, p = 0.95, FUN = c("StdDev"))
