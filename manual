@@ -44,6 +44,11 @@ formals($функция)
 # код функции и его корректировка
 fix($функция)
 
+# округлить 
+round()
+# округлить в сторону 0 (отбросить данные после точки)
+trunc()
+
 # задание собственной функции
 my.fun1 <- function(x)		1 / (x+1) / sqrt(x)
 # или так 
@@ -52,6 +57,8 @@ my.fun1 <- function(x) {
 				return(z)
 			}
 
+# подгрузка библиотек внутри функции
+require()
 # подключение файла со своим набором функций
 source("123.R")
 
@@ -65,6 +72,7 @@ system.time(expr, gcFirst = TRUE)
 
 # обнулить окружение
 new.env()
+
 3.1 Работа с векторами
 
 # задать вектор (структурированный набор значений)
@@ -1014,10 +1022,21 @@ na.prev <- function(x){
 		quantile(x, 0.5)
 
 11. Эффективность ТС
+	library(PerformanceAnalytics)
 	11.1 Коэффициенты
-	
-		library(PerformanceAnalytics)
+	# на вход подавать SR ряд
 		# SharpeRatio {PerformanceAnalytics}
-			# на вход подается итоговая SR margin за период
-			R <- as.numeric(last(data$margin))
-			SharpeRatio(R, Rf = 0, p = 0.95, FUN = c("StdDev"))
+			SharpeRatio.annualized(returns, scale=1)
+		# SortinoRatio
+			SortinoRatio(returns)
+		# CalmarRatio
+			CalmarRatio(returns, scale=1)
+		# SterlingRatio
+			SterlingRatio(returns, scale=1)
+
+	12.1  Drawdowns
+	# на вход подавать SR
+		# таблица по n-худшим просадкам (по-умолчанию geometric = TRUE)
+		table.Drawdowns(R, top = 1000, digits = 4)
+		# поиск просадок
+		findDrawdowns(R, geometric = TRUE, ...)

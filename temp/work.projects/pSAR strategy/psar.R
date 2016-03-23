@@ -7,6 +7,7 @@ library("PerformanceAnalytics")
 #описание функций 
 #
 get.data <- function (ticker, from.date, to.date=Sys.Date(), frame="15min") {
+	require(rusquant) 
 	# загрузка данных
 	# дата в формате "2015-01-01"
 	print("Download Source Data")
@@ -30,6 +31,7 @@ exrem <- function(x) {
 
 nameOfStrategy <- "PSAR and 2SMA cross"
 strategy.psar.2sma <- function (data, slow.sma, fast.sma, accel.start=0.02, accel.max=0.2, state=TRUE) {
+	require(rusquant) 
 	# описание psar.2sma стратегии 
 	data$sma <- SMA(Cl(data), slow.sma)
 	data$fma <- SMA(Cl(data), fast.sma)
@@ -54,18 +56,19 @@ strategy.psar.2sma <- function (data, slow.sma, fast.sma, accel.start=0.02, acce
 }		
 
 calc.returns <- function(data, pip, s0=0, abs=FALSE, SR=FALSE, LR=FALSE, reinvest=TRUE) {
+	require(rusquant) 
 	# расчет доходностей
 	if (abs==TRUE) { 	
 		if (reinvest==TRUE) {
 			data$w <- data$state[[1]] * s0/data$Open[[1]]
-			data$w <- round(data$w, 0)
+			data$w <- trunc(data$w)
 			data$equity <- s0
 			data$margin <- 0
 			for ( i in 2:nrow(data) ) { 
 				data$margin[i] <- data$w[[i-1]] * ( data$Open[[i]] - data$Open[[i-1]] )
 				data$equity[i] <- (data$equity[[i-1]] + data$margin[[i]]) / pip
 				data$w[i] <- data$state[[i]] * data$equity[[i]] / data$Open[[i]]
-				data$w[i] <- round(data$w[i], 0)
+				data$w[i] <- trunc(data$w[i])
 			} 
 		} else {
 			data$w <- 1 
@@ -102,6 +105,7 @@ calc.returns <- function(data, pip, s0=0, abs=FALSE, SR=FALSE, LR=FALSE, reinves
 }
 
 calc.profit <- function(data, s0=0, reinvest=TRUE) {
+	require(rusquant) 
 	# расчет итогового профита
 	if (reinvest==TRUE) {
 		profit <- as.numeric(last(data$equity) - s0)		
@@ -112,6 +116,8 @@ calc.profit <- function(data, s0=0, reinvest=TRUE) {
 }
 # 
 dataset.psar.2sma <- function(data, state=FALSE, pip=1, s0=1, abs=FALSE, SR=FALSE, LR=FALSE, reinvest=FALSE, ) {
+	require(rusquant) 
+	require(PerformanceAnalytics)
 	# функция формирования итогового фрейма данных по всем наборам переменных работы стратегии
 	firstRun <- TRUE
 	for (fast.sma in seq(1, 99, 1)) {
@@ -128,7 +134,7 @@ dataset.psar.2sma <- function(data, state=FALSE, pip=1, s0=1, abs=FALSE, SR=FALS
 					temp.data$SR.equity <- temp.data2$equity
 					remove(temp.data2)
 					# расчет метрик продуктивности
-					PerfTable <- PerformanceTable(temp.data$SR)
+					RTable <- RatioTable(temp.data$SR)
 					# расчет временных метрик
 
 					# расчет итогового профита
