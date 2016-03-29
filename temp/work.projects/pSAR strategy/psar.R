@@ -95,7 +95,7 @@ calc.returns <- function(data, pip, s0=0, abs=FALSE, SR=FALSE, LR=FALSE, reinves
 		#if (reinvest==TRUE) {
 			#
 		#} else {
-			data$LR <- lag(data$state)*Delt(data$x, type="log")
+			data$LR <- lag(data$state)*Delt(data$LR, type="log")
 			data$LR[1] <- 0
 			data$margin <- cumsum(data$LR)
 			data$equity <- data$Open[[1]] * (exp(as.numeric(last(data$margin))) - 1)
