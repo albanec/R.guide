@@ -5,16 +5,21 @@ get.data <- function (ticker, from.date, to.date=Sys.Date(), period="15min") {
 	print("Download Source Data...")
 	data <- getSymbols(ticker, from=from.date, to=to.date, period=period, src="Finam", auto.assign=FALSE)
 	names(data) <- c("Open" , "High" , "Low" , "Close" , "Volume")
-	
 	return(data)
 }
 #
-stocks.name.list <- function (TickerList) {
-	StocksList <- read.csv(TickerList, header = F, stringsAsFactors = F)
+StocksNameList <- function (TickerList, StocksList=FALSE, description=FALSE) {
+	if (StocksList==FALSE) {
+		StocksList <- read.csv(TickerList, header = F, stringsAsFactors = F)
+	} 
 	nstocks <- nrow(StocksList)
 	FirstTime <- TRUE
 	for (i in 1:nstocks){
-		data.name <- paste(StocksList[i,1], "data", sep=".")
+		if (description!=FALSE) {
+			data.name <- paste(StocksList[i,1], description, sep=".")	
+		} else {
+			data.name <- paste(StocksList[i,1])
+		}
    		if (FirstTime==TRUE) {
    			data.name.list <- data.name
    			data.name.list <- data.name.list
@@ -53,32 +58,38 @@ ReadCSV <- function (name, period=FALSE, tframe=FALSE) {
 	write.zoo(data, file=filename)
 }
 #
-time.check <- function (data.name.list) {
+TimeCheck <- function (data.name.list, TickerList=0, StocksList=FALSE, description=FALSE) {
 	# функция нормализации набора xts по времени и запись данных в .csv
+	if (data.name.list==FALSE) {
+		data.name.list <- StocksNameList(TickerList, StocksList=FALSE, description) 
+	} 
 	nstocks <- nrow(data.name.list)
 	n <- rep(NA, nstocks)
 	for (i in 1:nstocks) {
-		name.temp <- as.character(data.name.list[i])
-		data.temp <- get(name.temp)
-		n[i] <- nrow(data.temp)
+		data.name <- as.character(data.name.list[i])
+		data <- get(data.name)
+		n[i] <- nrow(data)
 	}
 	n <- which.min(n)
 	nrow.min.name <- as.character(data.name.list[[n]])
 	cat( "MIN time objects: ", "\t\t", nrow.min.name, "\n")
 	cat( "TimeCheck...", "\n")	
+	# временной ряз из nrow.min файла
 	time.min <- time(nrow.min.name)
 	for (i in 1:nstocks) {
 		if (i != n) {
-			name.temp <- as.character(data.name.list[i])
-			data.temp <- get(name.temp)
-			data.temp <- data.temp[which(time(data.temp)==time.min)]
-			SaveCSV(data=data.temp, name=name.temp)
-			cat( "Calculation TimeCheck:", name.temp, "\n")
+			data.name <- as.character(data.name.list[i])
+			data <- get(data.name)
+			data <- data[which(time(data)==time.min)]
+			# запись в файл
+			SaveCSV(data=data, name=data.name)
+			cat( "Calculation TimeCheck:", data.name, "\n")
 		} else {
-			name.temp <- as.character(data.name.list[i])
-			data.temp <- get(name.temp)
-			SaveCSV(data=data.temp, name=name.temp)
-			cat( "Calculation TimeCheck:", name.temp, "\n")
+			data.name <- as.character(data.name.list[i])
+			data <- get(data.name)
+			# запись в файл
+			SaveCSV(data=data, name=data.name)
+			cat( "Calculation TimeCheck:", data.name, "\n")
 		}		
 	}
 	cat( "Calculation TimeCheck:", "\t\t All Completed ", "\n")	
@@ -92,13 +103,16 @@ maxretryattempts <- 5 # попытки загрузки на тикер
 
 #get.TickerList.data(work.dir="/home/evgeni/temp/R/", TickerList="TickerList", from.date=Sys.Date()-10, to.date=Sys.Date(), period="15min", maxretryattempts=5, TimeCheck=FALSE)
 #script 
-get.TickerList.data <- function (work.dir, TickerList="TickerList", from.date, to.date, period, maxretryattempts=5, TimeCheck=FALSE) {
+get.TickerList.data <- function (work.dir, TickerList="TickerList.csv", from.date, to.date, period, maxretryattempts=5, 
+									TimeCheck=FALSE, description=FALSE,
+									TimeExpand==FALSE, FrameList=="FrameList.csv") {
+	require(rusquant)
 	# функция загрузки листа котировок за период 
 		# на выходе - .csv файлы
 	# work.dir - рабочая папака, в которой работает скрипт
 	# period - вектор, содержащий нужные периоды свечей (в порядке возрастания); или один период
 	# TickerList - файл, сожержащий список нужных тикеров 
-	require(rusquant)
+	# description - добавить описание к файлу
 	setwd(work.dir)
 	print(paste("Current work.dir:", getwd()))	
 	StocksList <- read.csv(TickerList, header = F, stringsAsFactors = F)
@@ -108,7 +122,7 @@ get.TickerList.data <- function (work.dir, TickerList="TickerList", from.date, t
 	# если фреймы - вектор, то 
 	period.min <- period[1]
 	FirstTime <- TRUE 
-	# загрузка данных
+	data.name.list <- StocksNameList(StocksList=StocksList, description)
 	for (i in 1:nstocks){
 		# цикл загрузки с max количеством попыток
 		for(t in 1:maxretryattempts){
@@ -125,41 +139,40 @@ get.TickerList.data <- function (work.dir, TickerList="TickerList", from.date, t
 		data$SR[1] <- 0
 		data$LR <- Delt(data$Close, type="log")
 		data$LR[1] <- 0
-   		data.name <- paste(StocksList[i,1], "data", sep=".")
-   		if (FirstTime==TRUE) {
-   			data.name.list <- data.name
-   			data.name.list <- data.name.list
-   			FirstTime <- FALSE
-   		} else {
-   			data.name.list <- rbind(data.name.list, data.name)
-   		}
+   		data.name <- as.character(data.name.list[i])
    		assign(data.name, data)
 	}
 	# нормализации по time 
 	if (TimeCheck == TRUE) {
 		# нормализуем и сохраняем
-		time.check(data.name.list)
+		TimeCheck(data.name.list)
 	} else {
 		# просто сохраняем
 		for (i in 1:nstocks) {
-			name.temp <- as.character(data.name.list[i])
-			data.temp <- get(name.temp)
-			SaveCSV(data=data.temp, name=name.temp, period=period.min)
+			data.name <- as.character(data.name.list[i])
+			data <- get(data.name)
+			SaveCSV(data=data, name=data.name, period=period.min)
 		}
+	if (TimeExpand==TRUE) {
+		TimeExpand()
+	}
 	}
 	#return(data.name.list)
 }
 #
-get.TimeExpand.data <- function(work.dir, TickerList="TickerList", FrameList="FrameList", period) {
+get.TimeExpand.data <- function(data.name.list==FALSE, work.dir, TickerList=FALSE, FrameList="FrameList", period) {
 	# функция выделения данных по tf и временному интервалу
 		# выдает .csv
 	# period - вектор, содержащий нужные периоды свечей (в порядке возрастания); или один период
 	# TickerList - файл, сожержащий список нужных тикеров 
 	# FrameList - файл, сожержащий список нужных временных интервалов
 		# даты должны быть записаны в виде '2014-12-01/2014-12-31'
+	if (data.name.list==FALSE) {
+		data.name.list <- StocksNameList(TickerList, StocksList=FALSE, description) 
+	}
 	setwd(work.dir)
-	paste("ExpandData to FrameList")
-	data.name.list <- stocks.name.list(TickerList)
+	paste("ExpandData by FrameList")
+	data.name.list <- StocksNameList(TickerList, description)
 	FrameList <- read.csv(FrameList, header = F, stringsAsFactors = F)
 	nstocks <- nrow(data.name.list)
 	ntime <- nrow(FrameList[,1])
