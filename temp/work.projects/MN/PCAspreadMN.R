@@ -15,7 +15,7 @@ setwd(work.dir)
 # загрузка исходников данных
 GetData.TickerList(TickerList, from.date, to.date, period)
 # расширение данных 
-TimeExpand.data(TickerList, FrameList, period, description)
+TimeExpand.data(TickerList, FrameList, period, description=FALSE)
 # конвертирование в матрицу
 data.matrix <- DataForPCA (TickerList, description, period, approax)
 # вычисление PC
