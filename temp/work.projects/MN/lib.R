@@ -133,34 +133,33 @@ TimeExpand.data <- function(TickerList, FrameList, period, description=FALSE) {
 				# цикл периода
 				p <- period[t]
 				cat ("Expand...", "\t", data.name, "for Period ", p, "\n")
-				if (p=="5min") {
-					p <- "mins"
+				if (p=="5min") { 
+					p1 <- "mins"
 					k <- 5
 				}
 				if (p=="10min") {
-					p <- "mins"
+					p1 <- "mins"
 					k <- 10
 				}
 				if (p=="15min") {
-					p <- "mins"
+					p1 <- "mins"
 					k <- 15
 				}
 				if (p=="30min") {
-					p <- "mins"
+					p1 <- "mins"
 					k <- 30
 				}
 				if (p=="1hour") {
-					p <- "hours"
+					p1 <- "hours"
 					k <- 1
 				}
 				if (p=="1day") {
-					p <- "days"
+					p1 <- "days"
 					k <- 1
 				}
 				data <- data[window]
-				ends <- endpoints(data, p, k)
+				ends <- endpoints(data, p1, k)
 				data <- data[ends]
-				p <- paste(k, p, sep="")
 				SaveXTStoCSV(data=data, name=data.name, period=p, tframe=n)
 			}
 		}
@@ -168,13 +167,16 @@ TimeExpand.data <- function(TickerList, FrameList, period, description=FALSE) {
 	cat( "Expand StocksData...", "\t", "complete", "\n")
 }
 #
-DataForPCA <- function (TickerList, type, description, period, approax=FALSE) {
-	data <- MergeForMatrix(type, TickerList, description, period, approax)
-	data <- BindToMatrix(data, load.csv=FALSE, SaveFile="Matrix.csv")
+DataPrepareForPCA <- function (TickerList, price, description, period, tframe, approx=FALSE) {
+	cat( "Start DataPrepareForPCA...", "\n")
+	data <- MergeForMatrix(price, TickerList, description, period, tframe, approx)
+	cat( "Merging Data...", "\t", "done", "\n")
+	#data <- BindToMatrix(data, load.csv=FALSE, SaveFile="Matrix.csv")
+	cat( "Create MatrixForPCA...", "\t", "done", "\n")
 	return(data)
 } 
 #
-MergeForMatrix <- function (price=="Close", TickerList, description=FALSE, period, approax==FALSE) {
+MergeForMatrix <- function (price="SR", TickerList, description=FALSE, period, tframe, approx=FALSE) {
 	# функция объединения данных в один XTS и устранение NA значений 
 		# NA можно убрать простым na.locf и аппроксимацией
 	#
@@ -186,29 +188,51 @@ MergeForMatrix <- function (price=="Close", TickerList, description=FALSE, perio
 	FirstTime <- TRUE
 	#  чтение и объединение данных
 	for (i in 1:nstocks) {
-		cat( "Processing StocksData:", "\t", data.name, "\n")
 		data.name <- as.character(data.name.list[i])
-		data <- ReadCSVtoXTS(name=data.name, period=period.min, tframe=FALSE)
-		assign(data.name, data) 
+		cat( "Processing StocksData:", "\t", data.name, "\n")
+		data <- ReadCSVtoXTS(name=data.name, period=period.min, tframe) 
+		if (price=="Open") {
+			data <- data$Open
+			col.name <- paste(data.name, ".Open")
+			names(data) <- c(col.name)
+		}
+		if (price=="Close") {
+			data <- data$Close
+			col.name <- paste(data.name, ".Close")
+			names(data) <- c(col.name)	
+		}
+		if (price=="SR") {
+			data <- data$SR
+			col.name <- paste(data.name, ".SR")
+			names(data) <- c(col.name)
+		}
+		if (price=="LR") {
+			data <- data$LR
+			col.name <- paste(data.name, ".LR")
+			names(data) <- c(col.name)
+		}
 		if (FirstTime==TRUE) {
-			MergedData <- data.name
+			FirstTime <- FALSE
+			MergedData <- data
 		} else {
-			MergedData <- merge(MergedData, data.name)
+			MergedData <- merge(MergedData, data)
 		}
 	}	
 	cat("Merging StocksData:", "\t", "complete", "\n")
 	# нормализация NA-значений
-	if (approax==FALSE) {
+	if (approx==FALSE) {
 		# нормализация без аппроксимации (с пом-ю na.locf)
 		cat( "Normalize StocksData...", "\t", "without approx", "\n") 
 		MergedData <- na.locf(MergedData)
 	} else	{
 		# аппроксимация NA
 		cat( "Normalize StocksData...", "\t", "with approx", "\n") 
-		MergedData <- na.approax(MergedData)
+		#for (i in ncol(MergedData)) {
+		#	MergedData[, i] <- approx(index(MergedData), MergedData[ ,i], index(MergedData))$y  
+		#}
+		MergedData <- na.approx(MergedData)
 	}
 	MergedData <- na.omit(MergedData)
-	}
 	cat( "Save Data...", "\n") 
 	SaveXTStoCSV(data=MergedData, name="MergedData")
 	return (MergedData)
@@ -218,9 +242,12 @@ BindToMatrix <- function (data, load.csv=FALSE, SaveFile="Matrix.csv") {
 	# функция преобразования объединенного xts в матрицу
 	# на вход подается MergedData xts либо напрямую, либо через чтение .csv
 	if (load.csv==TRUE) {
+		cat( "Loading Data for BindToMatrix...", "\n")
 		data <- ReadCSVtoXTS(name="MergedData")
 	}
 	#преобразование в матрицу 
+	cat( "Create Matrix...", "\n")
+	#data <- data.frame(date=index(data), coredata(data))
 	data <- as.matrix(data, nrow=nrow(data), ncol=ncol(data))
 	write.table(data, file=SaveFile, sep=",")
 	return (data)
