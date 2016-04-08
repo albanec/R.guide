@@ -178,48 +178,46 @@ TimeExpand.data <- function(TickerList, FrameList, period, description=FALSE) {
 	cat( "Expand StocksData...", "\t", "complete", "\n")
 }
 #
-DataPrepareForPCA <- function (TickerList, price, description, period, tframe, approx=FALSE, out.name) {
+DataPrepareForPCA <- function (TickerList, price, description, period, tframe, approx=FALSE) {
 	cat( "Start DataPrepareForPCA...", "\n")
-	data <- MergeForMatrix(price, TickerList, description, period, tframe, approx, out.name)
+	data <- MergeForMatrix(price=price, TickerList=TickerList, description=description, period=period, tframe=tframe, approx=approx)
 	cat( "Merging Data...", "\t", "done", "\n")
 	#data <- BindToMatrix(data, load.csv=FALSE, SaveFile="Matrix.csv")
 	cat( "Create MatrixForPCA...", "\t", "done", "\n")
 	return(data)
 } 
 #
-MergeForMatrix <- function (price="SR", TickerList, description=FALSE, period, tframe, approx=FALSE, out.name="") {
+MergeForMatrix <- function (price="SR", TickerList, description=FALSE, period, tframe, approx=FALSE) {
 	# функция объединения данных в один XTS и устранение NA значений 
 		# NA можно убрать простым na.locf и аппроксимацией
-	#
 	# выгрузка данных по data.name.list
 	cat( "Generate DataNameList...", "\n")
-	data.name.list <- StocksNameList(TickerList, description) 
+	data.name.list <- StocksNameList(TickerList=TickerList, description=description) 
 	nstocks <- nrow(data.name.list)
-	period.min <- period[1]
 	FirstTime <- TRUE
 	#  чтение и объединение данных
 	for (i in 1:nstocks) {
 		data.name <- as.character(data.name.list[i])
 		cat( "Processing StocksData:", "\t", data.name, "\n")
-		data <- ReadCSVtoXTS(name=data.name, period=period.min, tframe) 
+		data <- ReadCSVtoXTS(name=data.name, period=period, tframe=tframe) 
 		if (price=="Open") {
 			data <- data$Open
-			col.name <- paste(data.name, ".Open")
+			col.name <- paste(data.name, "Open")
 			names(data) <- c(col.name)
 		}
 		if (price=="Close") {
 			data <- data$Close
-			col.name <- paste(data.name, ".Close")
+			col.name <- paste(data.name, "Close")
 			names(data) <- c(col.name)	
 		}
 		if (price=="SR") {
 			data <- data$SR
-			col.name <- paste(data.name, ".SR")
+			col.name <- paste(data.name, "SR")
 			names(data) <- c(col.name)
 		}
 		if (price=="LR") {
 			data <- data$LR
-			col.name <- paste(data.name, ".LR")
+			col.name <- paste(data.name, "LR")
 			names(data) <- c(col.name)
 		}
 		if (FirstTime==TRUE) {
@@ -245,8 +243,9 @@ MergeForMatrix <- function (price="SR", TickerList, description=FALSE, period, t
 	}
 	MergedData <- na.omit(MergedData)
 	cat( "Save Data...", "\n") 
-	filename <- paste("MergedData", out.name, sep="")
-	SaveXTStoCSV(data=MergedData, name=filename)
+	filename <- paste("MergedData", TickerList, sep=".")
+	SaveXTStoCSV(data=MergedData, name=filename, period=period, tframe=tframe)
+	#write.table(MergedData, file=filename, sep=",")
 	return (MergedData)
 }
 #
