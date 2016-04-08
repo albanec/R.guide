@@ -16,15 +16,39 @@ setwd(work.dir)
 GetData.TickerList(TickerList, from.date, to.date, period)
 # расширение данных 
 TimeExpand.data(TickerList, FrameList, period, description=FALSE)
-# конвертирование в матрицу
-data.matrix <- DataPrepareForPCA (TickerList, description, period, tframe, approx)
+# генерация xts для pca (за один TF) 
+data.matrix <- DataPrepareForPCA (TickerList, description, period, tframe, approx, price, out.name)
+# генерация xts для pca (по группам)
+DataPrepareForGroupPCA <- function (GroupList, FrameList, description, period=c("5min", "15min"),  approx, price) {
+	FrameList <- read.csv(FrameList, header = F, stringsAsFactors = F)
+	nframe <- nrow(FrameList)
+	tframe <- seq(1, nframe)
+	nperiod <- length(period)
+	for (i in 1:nperiod) {
+		for (t in 1:nframe) {
+			out.name <- paste(".", GroupList, ".", period[i], ".", tframe[t], sep="") 
+			data.matrix <- DataPrepareForPCA (TickerList=GroupList, description, period[i], tframe[t], approx, price, out.name)		
+			out.name <- as.character(paste("data.matrix", GroupList, ".", period[i], ".", tframe[t], sep="") )	 
+			# вычисление PC			
+			cat ("PCA start:", "\t", GroupList, "\n")
+			p <- princomp(data.matrix)
+			loadings <- p$loadings[]
+			# выбираем первые 10 (основное !!! )
+			components <- loadings[,1:10] 
+			# normalize all selected components to have total weight = 1
+			components <- components / rep.row(colSums(abs(components)), ncol(data.matrix))
+		}	
+	} 
+} 
 # вычисление PC
 p <- princomp(data.matrix)
+# веса
 loadings <- p$loadings[]
 # выбираем первые 10 (основное !!! )
 components <- loadings[,1:10] 
 # normalize all selected components to have total weight = 1
-components <- components / repRow(colSums(abs(components)), ncol(data.matrix))
+components <- components / rep.row(colSums(abs(components)), ncol(data.matrix))
+
 # note that first component is market, and all components are orthogonal i.e. not correlated to market
 n <- ncol(data.matrix)
 market <- data.matrix %*% rep(1/n,n)
@@ -48,3 +72,7 @@ for (i in 1:10) {
 #*****************************************************************
 #Графики
 #*****************************************************************
+
+
+
+

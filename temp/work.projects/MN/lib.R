@@ -1,3 +1,14 @@
+#
+rep.row<-function(x,n){
+   # функция создает матрицу из n строк вектора x
+   matrix(rep(x,each=n),nrow=n)
+}
+#
+rep.col<-function(x,n){
+	# функция создает матрицу из n столбцов вектора x
+   matrix(rep(x,each=n), ncol=n, byrow=TRUE)
+}
+#
 GetData <- function (ticker, from.date, to.date=Sys.Date(), period="15min") {
 	# функция загрузки тикера с Финам
 	require(rusquant) 
@@ -167,16 +178,16 @@ TimeExpand.data <- function(TickerList, FrameList, period, description=FALSE) {
 	cat( "Expand StocksData...", "\t", "complete", "\n")
 }
 #
-DataPrepareForPCA <- function (TickerList, price, description, period, tframe, approx=FALSE) {
+DataPrepareForPCA <- function (TickerList, price, description, period, tframe, approx=FALSE, out.name) {
 	cat( "Start DataPrepareForPCA...", "\n")
-	data <- MergeForMatrix(price, TickerList, description, period, tframe, approx)
+	data <- MergeForMatrix(price, TickerList, description, period, tframe, approx, out.name)
 	cat( "Merging Data...", "\t", "done", "\n")
 	#data <- BindToMatrix(data, load.csv=FALSE, SaveFile="Matrix.csv")
 	cat( "Create MatrixForPCA...", "\t", "done", "\n")
 	return(data)
 } 
 #
-MergeForMatrix <- function (price="SR", TickerList, description=FALSE, period, tframe, approx=FALSE) {
+MergeForMatrix <- function (price="SR", TickerList, description=FALSE, period, tframe, approx=FALSE, out.name="") {
 	# функция объединения данных в один XTS и устранение NA значений 
 		# NA можно убрать простым na.locf и аппроксимацией
 	#
@@ -234,7 +245,8 @@ MergeForMatrix <- function (price="SR", TickerList, description=FALSE, period, t
 	}
 	MergedData <- na.omit(MergedData)
 	cat( "Save Data...", "\n") 
-	SaveXTStoCSV(data=MergedData, name="MergedData")
+	filename <- paste("MergedData", out.name, sep="")
+	SaveXTStoCSV(data=MergedData, name=filename)
 	return (MergedData)
 }
 #
