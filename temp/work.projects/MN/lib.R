@@ -134,7 +134,7 @@ TimeExpand.data <- function(TickerList, FrameList, period, description=FALSE) {
 	for (i in 1:nstocks) {
 		data.name <- as.character(data.name.list[i])
 		cat( "Processing StocksData:", "\t", data.name, "\n")
-		data <- ReadCSVtoXTS(name=data.name, period=period[1], tframe=FALSE)
+		data.source <- ReadCSVtoXTS(name=data.name, period=period[1], tframe=FALSE)
 		cat ("Expand...", "\t", data.name, "\n")
 		for (n in 1:nframe) {
 			# цикл time.frame'а
@@ -168,7 +168,7 @@ TimeExpand.data <- function(TickerList, FrameList, period, description=FALSE) {
 					p1 <- "days"
 					k <- 1
 				}
-				data <- data[window]
+				data <- data.source[window]
 				ends <- endpoints(data, p1, k)
 				data <- data[ends]
 				SaveXTStoCSV(data=data, name=data.name, period=p, tframe=n)
@@ -264,4 +264,80 @@ BindToMatrix <- function (data, load.csv=FALSE, SaveFile="Matrix.csv") {
 	return (data)
 }
 #
+DataPrepareForGroupPCA <- function (TickerList, FrameList, description, period,  approx, price) {
+	FrameList <- read.csv(FrameList, header = F, stringsAsFactors = F)
+	nframe <- nrow(FrameList)
+	tframe <- seq(1, nframe)
+	nperiod <- length(period)
+	for (i in 1:nperiod) {
+		for (t in 1:nframe) {
+			data <- DataPrepareForPCA (TickerList=TickerList, description=description, period=period[i], tframe=tframe[t], approx=approx, price=price)
+		}	
+	} 
+}
+#
+PCAcompute <- function(TickerList, period, tframe, KG.test=FALSE, DF.test=TRUE) {
+	# выгрузка данных
+	filename <- paste("MergedData", TickerList, sep=".")
+	data <- ReadCSVtoXTS (name=filename, period, tframe)
+	# вычисление PC			
+	cat ("PCA start:", "\t", TickerList, "\n")
+	pca.data <- princomp(data)
+	# нагрузки
+	loadings <- pca.data$loadings[]
+	# ???
+	#evec <- pca.dates$rotation[] #eigen vectors
+	#eval <- pca.dates$sdev^2 #eigen values
+	#inv.evec <- solve(evec) #inverse of eigenvector
+	#pc.port <- inv.evec %*% t(ret)
+	# ???
+	# Критерий  Кайзера-Гуттмана  рекомендует оставить для дальнейшего анализа только те главные компоненты,
+	# дисперсия которых превышают среднюю:
+	if (KG.test==TRUE) {
+		ev <- as.numeric(pca.data$sdev)
+		ev <- which.min(ev>mean(ev))
+		cat("KG factor PCA numbers:", "\t", ev, "\n")	
+		#n.PC <- ev
+	} else {
+		# выбираем не больше первых 10 PC
+		n.PC <- ncol(loadings)
+		if (n.PC > 10) {
+			n.PC <- 10
+		}	
+	} 
+	# вычисление компонент
+	components <- loadings[,1:n.PC]
+	# нормализуем компоненты - в сумме должны дать 1 (получаем веса)
+	n <- ncol(data)
+	components <- components / rep.row(colSums(abs(components)), n)
+	# note that first component is market, and all components are orthogonal i.e. not correlated to market
+	market <- data %*% rep(1/n,n)
+	temp <- cbind(market, data %*% components)
+    colnames(temp)[1] <- 'Market' 
+    temp <- as.xts(temp, index(data))
+    # корреляция между PC (по Пирсону)
+	cor.table <- round(cor(temp, use='complete.obs',method='pearson'),2)
+ 	# дисперсия PC
+	vol <- round(100*sd(temp,na.rm=T),2)
+	# проверка на стационарность получившихся PC
+	if (DF.test==TRUE) {
+		m <- 1 + (-data %*% components)
+		equity <- apply(m, 2,  cumprod)
+		equity <- as.xts(equity, index(data))
+ 		# test for stationarity ( mean-reversion )
+		df.value <- rep(NA, n.PC)
+		for (i in 1:n.PC) {
+			df.value[i] <- adf.test(as.numeric(equity[, i]))$p.value			
+		}
+		statPC <- which.min(df.value)
+		cat("Best DF-test result...", "\t", df.value[statPC], "\t", "PC:", statPC, "\n")
+	} 
+	# сохраняем нагрузки 
+	loadings.filename <- paste("Loadings", TickerList, period, tframe, "csv", sep=".")
+	write.table(loadings, file=loadings.filename, sep=",")
+	# сохраняем веса
+	components.filename <- paste("Components", TickerList, period, tframe, "csv", sep=".")
+	write.table(components, file=components.filename, sep=",")
+	#barplot(height=pca.data$sdev[1:10]/pca.data$sdev[1])
+}
 
