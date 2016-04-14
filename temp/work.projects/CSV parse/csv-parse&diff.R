@@ -1,5 +1,12 @@
 library(data.table)
 
+# returns string w/o leading whitespace
+trim.leading <- function (x) sub("^\\s+", "", x)
+# returns string w/o trailing whitespace
+trim.trailing <- function (x) sub("\\s+$", "", x)
+# returns string w/o leading or trailing whitespace
+trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+
 # функция-парсер
 parse.csv <- function (file.path=file.path, var1=26, var2=27, var3=28, profit=profit, sort=TRUE, var.names=TRUE) {
 	# подгрузка файлов 
@@ -27,13 +34,17 @@ parse.csv <- function (file.path=file.path, var1=26, var2=27, var3=28, profit=pr
 		file <- file[, colSums(is.na(file)) == 0]
 		#
 		temp.t <- nrow(file) 
-		temp.frame <- rep(NA, max(temp.t))
+		temp.frame <- rep(NA, temp.t)
 		temp.frame <- data.frame(temp.frame)
 		#
 		temp.frame$var1 <- as.numeric( gsub("\\,", ".", file[[var1]]) ) 
+		temp.frame$var1 <- as.numeric( gsub("\\s", "", temp.frame$var1) ) 
 		temp.frame$var2 <- as.numeric( gsub("\\,", ".", file[[var2]]) )
+		temp.frame$var2 <- as.numeric( gsub("\\s", "", temp.frame$var2) )
 		temp.frame$var3 <- as.numeric( gsub("\\,", ".", file[[var3]]) )
+		temp.frame$var3 <- as.numeric( gsub("\\s", "", temp.frame$var3) )
 		temp.frame$profit <- as.numeric( gsub("\\,", ".", file[[profit]]) )
+		temp.frame$profit <- as.numeric( gsub("\\s", "", temp.frame$profit) )
 		temp.frame$temp.frame <- NULL
 		# сортировка по профиту
 		if (sort==TRUE) {
