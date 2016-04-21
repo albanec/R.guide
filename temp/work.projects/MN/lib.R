@@ -279,6 +279,7 @@ DataPrepareForPCA <- function (ticker.list, price, description, period, tframe, 
 MergeForPCA <- function (price = "SR", ticker.list, description = FALSE, period, tframe, approx = FALSE) {
 	# ----------
 	# Общее описание:
+	# 	вспомогательная для DataPrepareForPCA()
 	# 	функция объединения данных в один XTS и устранение NA значений
 		# NA можно убрать простым na.locf и аппроксимацией
 	# Входные данные:
@@ -341,7 +342,7 @@ MergeForPCA <- function (price = "SR", ticker.list, description = FALSE, period,
 	}
 	merged.data <- na.omit(merged.data)
 	cat( "Save Data...", "\n") 
-	filename <- paste("MergedData", ticker.list = ticker.list, sep = ".")
+	filename <- paste("MergedData", ticker.list, price, sep = ".")
 	SaveXTStoCSV(data = merged.data, name = filename, period = period, tframe = tframe)
 	#write.table(merged.data, file = filename, sep = ",")
 	return (merged.data)
@@ -350,6 +351,7 @@ MergeForPCA <- function (price = "SR", ticker.list, description = FALSE, period,
 BindToMatrix <- function (data, load.filename = FALSE, save.filename = "Matrix.csv") {
 	# ----------
 	# Общее описание:
+	# 	вспомогательная для DataPrepareForPCA()
 	# 	функция преобразования объединенного xts в матрицу
 		# на вход подается merged.data xts либо напрямую, либо через чтение .csv (чтение нужно для 
 		# независимого от DataPrepareForPCA() использования
@@ -400,7 +402,7 @@ ExpandDataPrepareForPCA.toSCV <- function (ticker.list, frame.list, description,
 	} 
 }
 #
-PCAcompute <- function(data, period, tframe, KG.test = FALSE, DF.test = TRUE) {
+PCAcompute <- function(data, period, tframe, price = "SR", KG.test = FALSE, print = TRUE) {
 	# ----------
 	# Общее описание:
 	# 	вычисление PC + тестирует данные
@@ -408,12 +410,12 @@ PCAcompute <- function(data, period, tframe, KG.test = FALSE, DF.test = TRUE) {
 	#	data - xts, содержащий подготовленные данные 
 	# 	period - данные по периоду свечей (нужно для корректоного имени .csv)
 	#	tframe - данные по тайп-фрейму (нужно для корректоного имени .csv)
-	#	KG.test - необходимость теста Кайзера-Гуттмана (проверки PC на значимость)
-	# 	DF.test - необходимость теста Дика-Фулера (поверка PC на стационарность)
+	#	KG.test - необходимость теста Кайзера-Гуттмана (проверки PC на стат. значимость)
 	# Выходные данные:
-	#	data - матрица для PCA 
+	#	equity - ряд equity для PCA 
+	#	+ запись весов в файл
 	# ----------
-	# 			
+	#
 	cat ("PCA start:", "\t", ticker.list, "\n")
 	pca.data <- princomp(data)
 	# нагрузки
@@ -432,9 +434,9 @@ PCAcompute <- function(data, period, tframe, KG.test = FALSE, DF.test = TRUE) {
 			n.PC <- 10
 		}	
 	} 
-	# вычисление компонент
-	components <- loadings[,1:n.PC]
-	# нормализуем компоненты - в сумме должны дать 1 (получаем веса)
+	# выделение компонент
+	components <- loadings[, 1:n.PC]
+	# нормализуем компоненты 
 	n <- ncol(data)
 	components <- components / rep.row(colSums(abs(components)), n)
 	# note that first component is market, and all components are orthogonal i.e. not correlated to market
@@ -443,32 +445,62 @@ PCAcompute <- function(data, period, tframe, KG.test = FALSE, DF.test = TRUE) {
     colnames(temp)[1] <- 'Market' 
     temp <- as.xts(temp, index(data))
     # корреляция между PC (по Пирсону)
-	cor.table <- round(cor(temp, use = 'complete.obs',method = 'pearson'),2)
- 	# дисперсия PC
+	cor.table <- round(cor(temp, use = 'complete.obs', method = 'pearson'),2)
+ 	# суммарная дисперсия компонент
 	vol <- round(100*sd(temp,na.rm = T),2)
-	# проверка на стационарность получившихся PC
-	if (DF.test == TRUE) {
+	# вывод данных
+	if (print == TRUE) {
+		cat("PC value:", "\t", n.PC, "\n")
+		cat("Components after PCA:")
+		print(components)
+		cat("\n")
+		cat("Correlation Table between PCA:")
+		print(cor.table)
+		cat("\n")
+		cat("Vol Summary:", vol, "\n")
+	}
+	# вычислене equity по каждой из компонент
+	if (price == "Close") {
+		m <-  -data %*% components
+		equity <- apply(m, 2,  cumsum)
+		equity <- as.xts(equity, index(data))	
+	}
+	if (price == "SR") {
 		m <- 1 + (-data %*% components)
 		equity <- apply(m, 2,  cumprod)
 		equity <- as.xts(equity, index(data))
- 		# test for stationarity ( mean-reversion )
-		df.value <- rep(NA, n.PC)
-		for (i in 1:n.PC) {
-			df.value[i] <- adf.test(as.numeric(equity[, i]))$p.value			
-		}
-		statPC <- which.min(df.value)
-		cat("Best DF-test result...", "\t", df.value[statPC], "\t", "PC:", statPC, "\n")
 	} 
-	# сохраняем нагрузки 
-	loadings.filename <- paste("Loadings", ticker.list, period, tframe, "csv", sep = ".")
-	write.table(loadings, file = loadings.filename, sep = ",")
+	if (price == "LR") {
+		m <-  -data %*% components
+		equity <- apply(m, 2,  cumsum)
+		equity <- as.xts(equity, index(data))	
+	}
 	# сохраняем веса
+	cat("Save components")
 	components.filename <- paste("Components", ticker.list, period, tframe, "csv", sep = ".")
 	write.table(components, file = components.filename, sep = ",")
 	#barplot(height = pca.data$sdev[1:10]/pca.data$sdev[1])
-	return()
+	return(equity)
 }
-
+PCA.DFtest <- function (data) {
+	# ----------
+	# Общее описание:
+	# 	проверка на стационарность получившихся PC (по их equity)
+	# Входные данные:
+	#	data - xts, equity главных компонент 
+	# Выходные данные:
+	#	equity[, statPC] - ряд equity для наиболее стационарной PCA 
+	# ----------
+	#
+	# ДФ-тест на стационарность
+	df.value <- rep(NA, n.PC)
+	for (i in 1:n.PC) {
+		df.value[i] <- adf.test(as.numeric(equity[, i]))$p.value			
+	}
+	statPC <- which.min(df.value)
+	cat("Best DF-test result...", "\t", df.value[statPC], "\t", "PC:", statPC, "\n")
+	return (equity[, statPC]) 
+}
 	# выгрузка данных
 	#filename <- paste("MergedData", ticker.list, sep = ".")
 	#data <- ReadCSVtoXTS (name = filename, period, tframe)

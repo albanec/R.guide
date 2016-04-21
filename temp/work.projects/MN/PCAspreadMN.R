@@ -11,18 +11,22 @@ description <- FALSE
 period <- c("5min", "15min")
 approx <- FALSE
 price <- "LR"
-source("libmn.R")
 #
 setwd(work.dir)
+source("libGeneric.R")
+source("libPCA.R")
 # загрузка исходников данных
-GetTickerListData.toCSV(ticker.list, from.date, to.date, period)
+GEN_GetDataTickerListCSV(ticker.list, from.date, to.date, period)
 # расширение данных 
-TimeExpand.data(ticker.list, frame.list, period, description=FALSE)
+GEN_TimeExpandData(ticker.list, frame.list, period, description=FALSE)
 # генерация xts для pca (за один TF) 
 	#data <- DataPrepareForPCA (TickerList, description, period, tframe, approx, price)
 # генерация xts для pca (по фреймам и периодам)
-ExpandDataPrepareForPCA.toSCV(ticker.list, frame.list, description, period,  approx, price)
+PCA_ExpandData(ticker.list, frame.list, description, period,  approx, price)
 # вычисление PCA
-PCAcompute(TickerList, period, tframe, KGfactor=TRUE) 
+data <- GEN_SaveXTStoCSV(name = MergedData.TickerList.LR, period="5min", tframe=1)
+pca.equity <- PCA_ComputePCA(data, period="5min", tframe=1, price = "LR")
+n.PC <- PCA_DFtestPCA (pca.equity)
+
 
 

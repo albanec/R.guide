@@ -741,7 +741,7 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 		x <- diff(x1>x2)
 		x[1] <- 0
 		x[x<0] <- 0
-		as.logical(c(0,x))
+		return (as.logical(c(0,x)))
 	}
 	# для рядов
 	Cross <- function(x1,x2) {
