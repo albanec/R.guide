@@ -27,6 +27,10 @@ PCA_ExpandData(ticker.list, frame.list, description, period,  approx, price)
 data <- GEN_SaveXTStoCSV(name = MergedData.TickerList.LR, period="5min", tframe=1)
 pca.equity <- PCA_ComputePCA(data, period="5min", tframe=1, price = "LR")
 n.PC <- PCA_DFtestPCA (pca.equity)
+#
+
+
+
 
 
 
