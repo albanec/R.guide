@@ -1,92 +1,136 @@
-var1<-2; var2<-3; var3<-4; var4<-5
-profit <- 6
-recover <- 14
-file.path1 <- "/home/evgeni/R/temp/t1/11_13.csv"
-file.path2 <- "/home/evgeni/R/temp/t1/14.csv"
-file.path3 <- "/home/evgeni/R/temp/t1/15.csv"
-file.path4 <- "/home/evgeni/R/temp/t1/16.csv"
-
-# парсинг данных и подготовка
-	file1 <- parse.csv(file.path=file.path1, var1, var2, var3, var4, profit=profit, sort=FALSE, var.names=FALSE)
-	file2 <- parse.csv(file.path=file.path2, var1, var2, var3, var4, profit=profit, sort=FALSE, var.names=FALSE)
-	file3 <- parse.csv(file.path=file.path3, var1, var2, var3, var4, profit=profit, sort=FALSE, var.names=FALSE)
-	file4 <- parse.csv(file.path=file.path4, var1, var2, var3, var4, profit=profit, sort=FALSE, var.names=FALSE)
-	#
-	file1.temp <- parse.csv(file.path=file.path1, var1, var2, var3, var4, profit=recover, sort=FALSE, var.names=FALSE)
-	file2.temp <- parse.csv(file.path=file.path2, var1, var2, var3, var4, profit=recover, sort=FALSE, var.names=FALSE)
-	file3.temp <- parse.csv(file.path=file.path3, var1, var2, var3, var4, profit=recover, sort=FALSE, var.names=FALSE)
-	file4.temp <- parse.csv(file.path=file.path4, var1, var2, var3, var4, profit=recover, sort=FALSE, var.names=FALSE)
-	#
-	file1$recovery <- file1.temp$profit
-	file2$recovery <- file2.temp$profit
-	file3$recovery <- file3.temp$profit
-	file4$recovery <- file4.temp$profit
-	remove(file1.temp); remove(file2.temp); remove(file3.temp); remove(file4.temp)
-# нумерация ботов 
-	bot.numbers <- function (data, n) {
-		for (i in seq(1, nrow(data))) {
-			data$b.num <- rep(seq(1:n), nrow(data)/n)
-		}
-		return (data)
-	}
-	file1 <- bot.numbers(file1, n=18)
-	file2 <- bot.numbers(file2, n=18)
-	file3 <- bot.numbers(file3, n=18)
-	file4 <- bot.numbers(file4, n=18)
-# обработка по equity
-	temp.data1 <- compare.df(file1, file2, rec=TRUE, p.diff=TRUE)
-	temp.data2 <- compare.df(file2, file3, rec=TRUE, p.diff=TRUE)
-	temp.data3 <- compare.df(file3, file4, rec=TRUE, p.diff=TRUE)
-	temp.data4 <- compare.df(file1, file4, rec=TRUE, p.diff=TRUE)
-	#
-	temp.data1 <- quant.file(data=temp.data1, var=7, q.low=0.2, low=TRUE)
-	temp.data2 <- quant.file(data=temp.data2, var=7, q.low=0.2, low=TRUE)
-	temp.data3 <- quant.file(data=temp.data3, var=7, q.low=0.2, low=TRUE)
-	temp.data4 <- quant.file(data=temp.data4, var=7, q.low=0.2, low=TRUE)
-	temp.data1 <- temp.data1[order(-temp.data1$profit.sum),]
-	temp.data2 <- temp.data2[order(-temp.data2$profit.sum),]
-	temp.data3 <- temp.data3[order(-temp.data3$profit.sum),]
-	temp.data4 <- temp.data4[order(-temp.data4$profit.sum),]
+var1 <- 2
+var2 <- 12
+profit	<- 6
+file1.m <- 26
+file2.m <- 9
+file3.m <- 12
+file4.m <- 4
+file.path1 <- "/home/rs-evgeni/temp/t2/11-13.csv"
+file.path2 <- "/home/rs-evgeni/temp/t2/14.csv"
+file.path3 <- "/home/rs-evgeni/temp/t2/15.csv"
+file.path4 <- "/home/rs-evgeni/temp/t2/16.csv"
 #
-# данные для графиков
-	mycolors <-  rainbow(30, start=0.3, end=0.95)
-	var1.name <- colnames(temp.data1)[1]
-	var2.name <- colnames(temp.data1)[2]
-	var3.name <- colnames(temp.data1)[3]
-	var4.name <- colnames(temp.data1)[4]
-	var5.name <- colnames(temp.data1)[5]
-# график (profit без заморочек)mode="markers"
-	p1 <- plot_ly(x=temp.data[[2]], y=temp.data[[1]], mode="markers",color=temp.data[[11]], colors=mycolors) %>% 
-		layout(title = "Profit без учета recovery", 
-			p1, xaxis = list(type = "log"),
-    	   	yaxis = list(type = "log"))
-        	)
-# учет recovery
-	temp.data2 <- temp.data
-	temp.data1$recovery.diff <- abs(temp.data1$recovery - temp.data1$recovery2)
-	temp.data2$recovery.diff <- abs(temp.data2$recovery - temp.data2$recovery2)
-	temp.data3$recovery.diff <- abs(temp.data3$recovery - temp.data3$recovery2)
-	temp.data4$recovery.diff <- abs(temp.data4$recovery - temp.data4$recovery2)
-	# сглаженность данных
-	temp.data1 <- quant.file(data=temp.data1, var=7, q.hi=0.9, hi=TRUE)
-	temp.data2 <- quant.file(data=temp.data2, var=7, q.hi=0.9, hi=TRUE)
-	temp.data3 <- quant.file(data=temp.data3, var=7, q.hi=0.9, hi=TRUE)
-	temp.data4 <- quant.file(data=temp.data4, var=7, q.hi=0.9, hi=TRUE)
-	# 
-	temp.data1 <- quant.file(data=temp.data1, var=7, q.hi=0.9, hi=TRUE, abs=TRUE)
-	temp.data2 <- quant.file(data=temp.data2, var=7, q.hi=0.5, hi=TRUE, abs=TRUE)
-	temp.data3 <- quant.file(data=temp.data3, var=7, q.hi=0.5, hi=TRUE, abs=TRUE)
-	temp.data4 <- quant.file(data=temp.data4, var=7, q.hi=0.5, hi=TRUE, abs=TRUE)
-	temp.data1 <- temp.data1[order(-temp.data1$profit.sum),]
-	temp.data2 <- temp.data2[order(-temp.data2$profit.sum),]
-	temp.data3 <- temp.data3[order(-temp.data3$profit.sum),]
-	temp.data4 <- temp.data4[order(-temp.data4$profit.sum),]
-# график (с учётом recovery)
-	p2 <- plot_ly(x=temp.data[[1]], y=temp.data[[2]], z=temp.data[[3]], type="scatter3d", mode="markers", color=temp.data[[9]], colors=mycolors) %>% 
-		layout(title = "Profit без учета recovery", 
-			scene = list( 
-				xaxis = list(title = "var1.name" ),
-       	    	yaxis = list(title = "var2.name" ), 
-       	    	zaxis = list(title = "var3.name" )
-       	  		) 
-        	)
+file1 <- parse.csv(file.path=file.path1, var1=2, var2=12, profit=profit, sort=FALSE, var.names=FALSE)
+file2 <- parse.csv(file.path=file.path2, var1=2, var2=12,  profit=profit, sort=FALSE, var.names=FALSE)
+file3 <- parse.csv(file.path=file.path3, var1=2, var2=12,  profit=profit, sort=FALSE, var.names=FALSE)
+file4 <- parse.csv(file.path=file.path4, var1=2, var2=12,  profit=profit, sort=FALSE, var.names=FALSE)
+#
+file1[,4] <- rep(seq(1,18), nrow(file1)/18)
+file2[,4] <- rep(seq(1,18), nrow(file2)/18)
+file3[,4] <- rep(seq(1,18), nrow(file3)/18)
+file4[,4] <- rep(seq(1,18), nrow(file4)/18)
+#
+file1 <- file1[which(file1[, 3] > 0),]
+file2 <- file2[which(file2[, 3] > 0),]
+file3 <- file3[which(file3[, 3] > 0),]
+file4 <- file4[which(file4[, 3] > 0),]
+#
+file1[, 5] <- file1[, 3]*12 / abs(file1[, 2])*file1.m
+file2[, 5] <- file2[, 3]*12 / abs(file2[, 2])*file2.m
+file3[, 5] <- file3[, 3]*12 / abs(file3[, 2])*file3.m
+file4[, 5] <- file4[, 3]*12 / abs(file4[, 2])*file4.m
+#
+mycolors <-  rainbow(30, start=0.3, end=0.95)
+p1 <- plot_ly(x=file1[[4]], y=file1[[1]], mode="markers", color=file1[[5]], colors=mycolors) 
+p2 <- plot_ly(x=file2[[4]], y=file2[[1]], mode="markers", color=file2[[5]], colors=mycolors) 
+p3 <- plot_ly(x=file3[[4]], y=file3[[1]], mode="markers", color=file3[[5]], colors=mycolors) 
+p4 <- plot_ly(x=file4[[4]], y=file4[[1]], mode="markers", color=file4[[5]], colors=mycolors) 
+p <- subplot(p1, p2, p3, p4, nrows = 1)
+#
+BotReit <- function (data, n) {
+	FirstTime <- TRUE
+	for (i in seq(1, n)) {
+		bot.reit <- 0
+		bot.profit <- 0
+		for (q in seq(1, nrow(data))) {
+			if (data[q, 4] == i) {
+				bot.reit <- as.numeric(bot.reit + 1)
+				bot.profit <- as.numeric(bot.profit + data[q, 5])
+			}
+		}
+		reit.row <- c(i, bot.reit, bot.profit)
+		if (FirstTime == TRUE) {
+			reit.table <- reit.row
+			FirstTime <- FALSE
+		} else {
+			reit.table <- rbind(reit.table, reit.row)
+		}
+	}
+	return(reit.table)
+}
+PerReit <- function (data, n) {
+	FirstTime <- TRUE
+	for (i in seq(1, n)) {
+		per.reit <- 0
+		per.profit <- 0
+		for (q in seq(1, nrow(data))) {
+			if (data[q, 1] == i) {
+				per.reit <- as.numeric(per.reit + 1)
+				per.profit <- as.numeric(per.profit + data[q, 5])
+			}
+		}
+		reit.row <- c(i, per.reit, per.profit)
+		if (FirstTime == TRUE) {
+			reit.table <- reit.row
+			FirstTime <- FALSE
+		} else {
+			reit.table <- rbind(reit.table, reit.row)
+		}
+	}
+	return(reit.table)
+}
+#
+file1.bot.reit.table <- BotReit(file1, 18)
+file2.bot.reit.table <- BotReit(file2, 18)
+file3.bot.reit.table <- BotReit(file3, 18)
+file4.bot.reit.table <- BotReit(file4, 18)
+#
+file1.per.reit.table <- PerReit(file1, 130)
+file2.per.reit.table <- PerReit(file2, 130)
+file3.per.reit.table <- PerReit(file3, 130)
+file4.per.reit.table <- PerReit(file4, 130)
+#
+bot.reit.p1 <- plot_ly(y=file1.bot.reit.table[, 2], x=file1.bot.reit.table[, 1], mode="markers",  color=file1.bot.reit.table[,3], colors=mycolors) 
+bot.reit.p2 <- plot_ly(y=file2.bot.reit.table[, 2], x=file2.bot.reit.table[, 1], mode="markers",  color=file2.bot.reit.table[,3], colors=mycolors) 
+bot.reit.p3 <- plot_ly(y=file3.bot.reit.table[, 2], x=file3.bot.reit.table[, 1], mode="markers",  color=file3.bot.reit.table[,3], colors=mycolors) 
+bot.reit.p4 <- plot_ly(y=file4.bot.reit.table[, 2], x=file4.bot.reit.table[, 1], mode="markers",  color=file4.bot.reit.table[,3], colors=mycolors) 
+per.reit.p1 <- plot_ly(y=file1.per.reit.table[, 1], x=file1.per.reit.table[, 2], mode="markers",  color=file1.per.reit.table[,3], colors=mycolors) 
+per.reit.p2 <- plot_ly(y=file2.per.reit.table[, 1], x=file2.per.reit.table[, 2], mode="markers",  color=file2.per.reit.table[,3], colors=mycolors) 
+per.reit.p3 <- plot_ly(y=file3.per.reit.table[, 1], x=file3.per.reit.table[, 2], mode="markers",  color=file3.per.reit.table[,3], colors=mycolors) 
+per.reit.p4 <- plot_ly(y=file4.per.reit.table[, 1], x=file4.per.reit.table[, 2], mode="markers",  color=file4.per.reit.table[,3], colors=mycolors) 
+reit.p <- subplot(bot.reit.p1, bot.reit.p2, bot.reit.p3, bot.reit.p4, per.reit.p1, per.reit.p2, per.reit.p3, per.reit.p4, nrows = 2)
+#
+all.p <- subplot(p1, p2, p3, p4, bot.reit.p1, bot.reit.p2, bot.reit.p3, bot.reit.p4, per.reit.p1, per.reit.p2, per.reit.p3, per.reit.p4, nrows = 3)
+#
+temp <- c (file1[which.max(file1[, 5]), 5], file2[which.max(file2[, 5]), 5], file3[which.max(file3[, 5]), 5], file4[which.max(file4[, 5]), 5])
+file1[nrow(file1)+1, ] <- c(0, 0, 0, 0, temp[[which.max(temp)]])
+file2[nrow(file2)+1, ] <- c(0, 0, 0, 0, temp[[which.max(temp)]])
+file3[nrow(file3)+1, ] <- c(0, 0, 0, 0, temp[[which.max(temp)]]) 
+file4[nrow(file4)+1, ] <- c(0, 0, 0, 0, temp[[which.max(temp)]])
+#
+file1 <- file1[-nrow(file1), ]
+file2 <- file2[-nrow(file2), ]
+file3 <- file3[-nrow(file3), ]
+file4 <- file4[-nrow(file4), ]
+#
+temp <- c (mean(file1[, 5]), mean(file2[, 5]), mean(file3[, 5]), mean(file4[, 5]))
+file1[nrow(file1)+1, ] <- c(0, 0, 0, 0, temp[[which.max(temp)]])
+file2[nrow(file2)+1, ] <- c(0, 0, 0, 0, temp[[which.max(temp)]])
+file3[nrow(file3)+1, ] <- c(0, 0, 0, 0, temp[[which.max(temp)]]) 
+file4[nrow(file4)+1, ] <- c(0, 0, 0, 0, temp[[which.max(temp)]])
+p1 <- plot_ly(x=file1[[4]], y=file1[[1]], mode="markers", color=file1[[5]], colors=mycolors) 
+p2 <- plot_ly(x=file2[[4]], y=file2[[1]], mode="markers", color=file2[[5]], colors=mycolors) 
+p3 <- plot_ly(x=file3[[4]], y=file3[[1]], mode="markers", color=file3[[5]], colors=mycolors) 
+p4 <- plot_ly(x=file4[[4]], y=file4[[1]], mode="markers", color=file4[[5]], colors=mycolors) 
+p <- subplot(p1, p2, p3, p4, nrows = 1)
+
+temp <- c (mean(file1[, 5]), mean(file2[, 5]), mean(file3[, 5]), mean(file4[, 5]))
+file1[nrow(file1)+1, ] <- c(0, 0, 0, 0, mean(temp))
+file2[nrow(file2)+1, ] <- c(0, 0, 0, 0, mean(temp))
+file3[nrow(file3)+1, ] <- c(0, 0, 0, 0, mean(temp)) 
+file4[nrow(file4)+1, ] <- c(0, 0, 0, 0, mean(temp))
+p1 <- plot_ly(x=file1[[4]], y=file1[[1]], mode="markers", color=file1[[5]], colors=mycolors) 
+p2 <- plot_ly(x=file2[[4]], y=file2[[1]], mode="markers", color=file2[[5]], colors=mycolors) 
+p3 <- plot_ly(x=file3[[4]], y=file3[[1]], mode="markers", color=file3[[5]], colors=mycolors) 
+p4 <- plot_ly(x=file4[[4]], y=file4[[1]], mode="markers", color=file4[[5]], colors=mycolors) 
+p <- subplot(p1, p2, p3, p4, nrows = 1)

@@ -342,27 +342,45 @@ pbr2.2 <- plot_ly(x=br2.2[,1], y=br2.2[,2], mode="markers", color=br2.2[,3], col
 pbr3.2 <- plot_ly(x=br3.2[,1], y=br3.2[,2], mode="markers", color=br3.2[,3], colors=mycolors)
 pbr4.2 <- plot_ly(x=br4.2[,1], y=br4.2[,2], mode="markers", color=br4.2[,3], colors=mycolors)
 #
-pbr1.3 <- plot_ly(x=br1.1[,1], y=br1.2[,2], mode="markers", color=br1.3[,3], colors=mycolors)
-pbr2.3 <- plot_ly(x=br2.1[,1], y=br2.2[,2], mode="markers", color=br2.3[,3], colors=mycolors)
-pbr3.3 <- plot_ly(x=br3.1[,1], y=br3.2[,2], mode="markers", color=br3.3[,3], colors=mycolors)
-pbr4.3 <- plot_ly(x=br4.1[,1], y=br4.2[,2], mode="markers", color=br4.3[,3], colors=mycolors)
+pbr1.3 <- plot_ly(x=br1.3[,1], y=br1.3[,2], mode="markers", color=br1.3[,3], colors=mycolors)
+pbr2.3 <- plot_ly(x=br2.3[,1], y=br2.3[,2], mode="markers", color=br2.3[,3], colors=mycolors)
+pbr3.3 <- plot_ly(x=br3.3[,1], y=br3.3[,2], mode="markers", color=br3.3[,3], colors=mycolors)
+pbr4.3 <- plot_ly(x=br4.3[,1], y=br4.3[,2], mode="markers", color=br4.3[,3], colors=mycolors)
 #
 ppr1.1 <- plot_ly(x=pr1.1[,2], y=pr1.1[,1], mode="markers", color=pr1.1[,3], colors=mycolors)
 ppr2.1 <- plot_ly(x=pr2.1[,2], y=pr2.1[,1], mode="markers", color=pr2.1[,3], colors=mycolors)
 ppr3.1 <- plot_ly(x=pr3.1[,2], y=pr3.1[,1], mode="markers", color=pr3.1[,3], colors=mycolors)
 ppr4.1 <- plot_ly(x=pr4.1[,2], y=pr4.1[,1], mode="markers", color=pr4.1[,3], colors=mycolors)
 #
-ppr1.2 <- plot_ly(x=pr1.1[,2], y=pr1.2[,1], mode="markers", color=pr1.2[,3], colors=mycolors)
-ppr2.2 <- plot_ly(x=pr2.1[,2], y=pr2.2[,1], mode="markers", color=pr2.2[,3], colors=mycolors)
-ppr3.2 <- plot_ly(x=pr3.1[,2], y=pr3.2[,1], mode="markers", color=pr3.2[,3], colors=mycolors)
-ppr4.2 <- plot_ly(x=pr4.1[,2], y=pr4.2[,1], mode="markers", color=pr4.2[,3], colors=mycolors)
+ppr1.2 <- plot_ly(x=pr1.2[,2], y=pr1.2[,1], mode="markers", color=pr1.2[,3], colors=mycolors)
+ppr2.2 <- plot_ly(x=pr2.2[,2], y=pr2.2[,1], mode="markers", color=pr2.2[,3], colors=mycolors)
+ppr3.2 <- plot_ly(x=pr3.2[,2], y=pr3.2[,1], mode="markers", color=pr3.2[,3], colors=mycolors)
+ppr4.2 <- plot_ly(x=pr4.2[,2], y=pr4.2[,1], mode="markers", color=pr4.2[,3], colors=mycolors)
 #
-ppr1.3 <- plot_ly(x=pr1.1[,2], y=pr1.3[,1], mode="markers", color=pr1.3[,3], colors=mycolors)
-ppr2.3 <- plot_ly(x=pr2.1[,2], y=pr2.3[,1], mode="markers", color=pr2.3[,3], colors=mycolors)
-ppr3.3 <- plot_ly(x=pr3.1[,2], y=pr3.3[,1], mode="markers", color=pr3.3[,3], colors=mycolors)
-ppr4.3 <- plot_ly(x=pr4.1[,2], y=pr4.3[,1], mode="markers", color=pr4.3[,3], colors=mycolors)
+ppr1.3 <- plot_ly(x=pr1.3[,2], y=pr1.3[,1], mode="markers", color=pr1.3[,3], colors=mycolors)
+ppr2.3 <- plot_ly(x=pr2.3[,2], y=pr2.3[,1], mode="markers", color=pr2.3[,3], colors=mycolors)
+ppr3.3 <- plot_ly(x=pr3.3[,2], y=pr3.3[,1], mode="markers", color=pr3.3[,3], colors=mycolors)
+ppr4.3 <- plot_ly(x=pr4.3[,2], y=pr4.3[,1], mode="markers", color=pr4.3[,3], colors=mycolors)
 #
 plot1 <- subplot(pbr1.1, pbr2.1, pbr3.1, pbr4.1, ppr1.1, ppr2.1, ppr3.1, ppr4.1, nrows=2)
 plot2 <- subplot(pbr1.2, pbr2.2, pbr3.2, pbr4.2, ppr1.2, ppr2.2, ppr3.2, ppr4.2, nrows=2)
 plot3 <- subplot(pbr1.3, pbr2.3, pbr3.3, pbr4.3, ppr1.3, ppr2.3, ppr3.3, ppr4.3, nrows=2)
-
+#
+AllInOne <- function (file.path, var1, var2, var3, profit=profit, draw=draw, m, tslab = TRUE, q.hi, one.scale=TRUE) {
+    data <- parse.csv(file.path = file.path, var1, var2, var3, profit=profit, draw=draw, sort=FALSE, var.names=FALSE)
+    if (tslab == FALSE) {
+        data$var0 <- BotNumSet(data, bot.num.table)    
+        data <- DuplicatedRowFilter(data)
+    }
+    data$profit.norm <- ProfitNorm(data, m = m)
+    data <- data[which(data$var1 < data$var2),]
+    data <- data[which(data$profit.norm > 0),]
+    mycolors <-  rainbow(30, start=0.3, end=0.95)
+    #
+    data <- quant.file(data, var=6, q.hi, hi=TRUE, abs=FALSE)
+    if (one.scale == TRUE) {
+        data[nrow(data)+1, ] <- c(0, 0, 0, 0, 0, data$profit.norm[[which.max(data$profit.norm)]])
+        data[nrow(data)+1, ] <- c(0, 0, 0, 0, 0, 0)
+    }
+    return (data)
+}
