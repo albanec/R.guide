@@ -59,6 +59,7 @@ parse.csv <- function (file.path=file.path, var1, var2, var3, profit=profit, dra
     
     return (temp.frame)
 }
+#
 quant.file <- function (data, var, q.hi=0, q.low=0, two=FALSE, low=FALSE, hi=FALSE, abs=FALSE) {
     if (two == TRUE) {
         # подготовка данных
@@ -104,53 +105,67 @@ data.1.16 <- AllInOne(file.path="/home/rs-evgeni/temp/t3/HL_cls_sma/16.csv",
 p1.16 <- plot_ly(data.1.16, x=var1, y=var2, z=var3, 
                 type="scatter3d", mode="markers", color=profit.norm, 
                 colors=mycolors, marker = list(size = 4))
-
-GiveMeMorePlots <- function (data) {
-	data <- data[order(-data$var3), ]
-	new.begining <- TRUE
-	plot.vector <- c()
-	mycolors <-  rainbow(30, start=0.3, end=0.95)
+#
+GiveMeMorePlots <- function (data, plot.num) {
+    data <- data[order(-data$var3), ]
+    new.begining <- TRUE
+    plot.vector <- c()
+    mycolors <-  rainbow(30, start=0.3, end=0.95)
     FirstTime <- TRUE
-	for ( i in 1:(nrow(data)-1)) {
-		if (data$var3[i] == data$var3[i+1]) {
-			per.num <- data$var3[i]
-			if (FirstTime == TRUE) {
-				temp.data <- data[i, ]
-				FirstTime <- FALSE
-			} else {
-				temp.data <- rbind(temp.data, data[i, ])
-			}
-		} else {
+    for ( i in 1:(nrow(data)-1)) {
+        if (data$var3[i] == data$var3[i+1]) {
             per.num <- data$var3[i]
-			FirstTime <- TRUE
-    		new.begining <- TRUE
-			temp.data <- rbind(temp.data, data[i, ])
-			temp.plot.name <- paste("plot", per.num, sep=".")
-			temp.data.name <- paste("temp.data", per.num, sep=".")
-			temp.xaxis.name <- paste("xaxis", per.num, sep=".")
+            if (FirstTime == TRUE) {
+                temp.data <- data[i, ]
+                FirstTime <- FALSE
+            } else {
+                temp.data <- rbind(temp.data, data[i, ])
+            }
+        } else {
+            per.num <- data$var3[i]
+            FirstTime <- TRUE
+            new.begining <- TRUE
+            if (i == 1) {
+                temp.data <- data[i, ]
+            } else {
+                temp.data <- rbind(temp.data, data[i, ])    
+            }
+            temp.plot.name <- paste("plot", per.num, sep=".")
+            temp.data.name <- paste("temp.data", per.num, sep=".")
+            temp.yaxis.name <- paste("yaxis", per.num, sep=".")
+            temp.xaxis.name <- paste("xaxis", per.num, sep=".")
             plot.vector <- c(plot.vector, temp.plot.name)
-			assign(temp.data.name, temp.data)
-            assign(temp.xaxis.name, list (title = paste("PER: ", per.num)))
+            assign(temp.data.name, temp.data)
+            assign(temp.yaxis.name, list (title = paste("PER: ", per.num)))
+            assign(temp.xaxis.name, list (title = paste(" ")))
             temp.text <- paste(temp.plot.name, "<- plot_ly(", temp.data.name, ", x = var1, y = var2, 
-                                mode = \"markers\", color = profit.norm, colors = mycolors) %>% layout(xaxis =", temp.xaxis.name , ")", sep = "")
+                                mode = \"markers\", color = profit.norm, colors = mycolors) %>% layout(yaxis =", temp.yaxis.name , 
+                               ", xaxis =", temp.xaxis.name, ", showlegend = FALSE)", sep = "")
             eval(parse(text = temp.text)) 
-		}
-	}
-	plot.count <- length(plot.vector)
-	FirstTime <- TRUE
-	for (i in 1:plot.count) {
-		if (FirstTime == TRUE) {
-			FirstTime <- FALSE
-			temp.plot.name <- paste(plot.vector[i])
-		} else {
-			temp.plot.name <- paste(temp.plot.name, plot.vector[i], sep=",")
-		}
-	}
-    nrow.plot.matrix <- round(plot.count/4)+1
+        }
+    }
+    plot.count <- length(plot.vector)
+    cat("numbers of plot:", plot.count, "\n")
+    FirstTime <- TRUE
+    cat("printing plot:")
+    for (i in 1:plot.count) {
+        cat(i, " ")
+        if (FirstTime == TRUE) {
+            FirstTime <- FALSE
+            temp.plot.name <- paste(plot.vector[i])
+        } else {
+            temp.plot.name <- paste(temp.plot.name, plot.vector[i], sep=",")
+        }
+    }
+    cat("\n")
+    nrow.plot.matrix <- round(plot.count/6)+1
+    cat("building plot matrix with", nrow.plot.matrix, "rows", "\n")
     temp.text <- paste("subplot(", 
-                        temp.plot.name, ", nrows = ", nrow.plot.matrix, ")", sep="")
-	p <- eval(parse(text = temp.text))
-	return (p)
+                       temp.plot.name, ", nrows = ", nrow.plot.matrix, ")", sep="")
+    p <- eval(parse(text = temp.text))
+    cloud.filename <- paste("r-docs/public-graph/", plot.num, ".bigplot", sep="")
+    plotly_POST(p, filename = cloud.filename)
+    return (p)
 }
 #
 data.1.11_13 <- AllInOne(file.path="/home/rs-evgeni/temp/t3/HL_cls_sma/14.csv", 
