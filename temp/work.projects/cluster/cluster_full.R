@@ -3,6 +3,6 @@ data <- GEN_AllPreparationLabsFile(file.path=file.path, var.list = c(26, 27, 28)
 data$profit <- NULL
 data$draw <- NULL
 clustPar.data <- CLU_CalcKmean.Parameters(data, iter.max = 100, plusplus = TRUE)
-CLU_ChartKmean.SS(ss.df = clustPar.data[1], n.opt = clustPar.data[[2]])
+CLU_PlotKmean.SS(ss.df = clustPar.data[1], n.opt = clustPar.data[[2]])
 clustFull.data <- CLU_CalcKmean(data, clustPar.data[[2]], plusplus = TRUE )
 clustFull.data
