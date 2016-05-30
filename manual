@@ -61,6 +61,29 @@ my.fun1 <- function(x) {
 require()
 # подключение файла со своим набором функций
 source("123.R")
+# работа с ошибками внутри функции
+# генерация ошибок
+warning()
+error()
+# остановка по условию
+stop()
+# предупреждения как ошибки 
+option(warn = 2)
+# подавление ошибок
+suppressWarnings( ParentFunction() )
+#поиск ошибок
+x <- tryCatch( "OK",  # или warning("got a warning!"), или stop("an error occured!")
+          warning=function(w){     
+            return(paste( "Warning:", conditionMessage(w)));
+          }, 
+          error = function(e) {      
+            return(paste( "Error:", conditionMessage(e)));
+          }, 
+          finally={
+            print("This is try-catch test. check the output.")
+          });
+print(x);
+
 
 # оператор вывода
 	print("text")
