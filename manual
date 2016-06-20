@@ -14,9 +14,9 @@ sudo dpkg -i https://download1.rstudio.org/rstudio-0.99.489-amd64.deb
 
 2. Установка пакетов
 
-install.packages("xts")		# xts - пакет для работы с временными рядами
+install.packages("xts")        # xts - пакет для работы с временными рядами
 install.packages("xts", dependencies=TRUE)
-install.packages("quantmod", repos="http://r-forge.r-project.org")		#с указанием репа
+install.packages("quantmod", repos="http://r-forge.r-project.org")        #с указанием репа
 
 # для пакетов: в меню r-studio tools->check for packets updates
 
@@ -36,7 +36,7 @@ a + b
 a - b
 
 # справка по функции
-help($функция)	# в Rstudio - выделить и нажать F11
+help($функция)    # в Rstudio - выделить и нажать F11
 # тело функции 
 body($функция)
 # список параметров функции
@@ -45,17 +45,18 @@ formals($функция)
 fix($функция)
 
 # округлить 
-round()
+round(x, digits = 0)
+floor()
 # округлить в сторону 0 (отбросить данные после точки)
 trunc()
 
 # задание собственной функции
-my.fun1 <- function(x)		1 / (x+1) / sqrt(x)
+my.fun1 <- function(x)        1 / (x+1) / sqrt(x)
 # или так 
 my.fun1 <- function(x) {
-				z <- 1 / (x+1) / sqrt(x)
-				return(z)
-			}
+                z <- 1 / (x+1) / sqrt(x)
+                return(z)
+            }
 
 # подгрузка библиотек внутри функции
 require()
@@ -86,9 +87,9 @@ print(x);
 
 
 # оператор вывода
-	print("text")
+    print("text")
 # вывод в одну строку 
-	cat(i)
+    cat(i)
 
 # вывод времени затраченного на выполнение операции
 system.time(expr, gcFirst = TRUE)
@@ -102,29 +103,29 @@ new.env()
 a <- c(1,2,3,4,5,6:10)
 b <- c(1, "a", T, F)
 # или так
-u <- seq(from=-2, to=3, by=0.5)	# from/to - диапазон, by - шаг сетки
-u <- seq(-2, 3, length=11)	# length - длина вектора, шаг расчитывается автоматически
+u <- seq(from=-2, to=3, by=0.5)    # from/to - диапазон, by - шаг сетки
+u <- seq(-2, 3, length=11)    # length - длина вектора, шаг расчитывается автоматически
 
 # задать вектор из повторяющихся значений
 rep(1:3, 4)
 rep(1:3, c(1,2,3))
 
-b[1]	# 1-й элемент вектора
-a[2:4]	# элементы с 2 по 4-й
-length(v)	# длина вектора 
+b[1]    # 1-й элемент вектора
+a[2:4]    # элементы с 2 по 4-й
+length(v)    # длина вектора 
 # с векторами можно работать практически всеми стандартными функциями
 # при сложении/вычитании вектора должны быть кратны друг другу
 
 # функции для работы с векторами
-mean(x)	# вычисляет среднее
+mean(x)    # вычисляет среднее
 sum(x)
-sum(x, na.rm=TRUE)	# позволяет исключить из вектора нечисловые значения
-sd(x)	# вычисляет СКО (standart deviation)
+sum(x, na.rm=TRUE)    # позволяет исключить из вектора нечисловые значения
+sd(x)    # вычисляет СКО (standart deviation)
 
 # генерация случайных чисел 
 # set.seed(10) - стандартизация последовательностей
-open.cost = runif($длина, $min, $max)	# равномерный закон растпред-я
-			rnorm(5, mean=2, sd=1)		# нормальное распред-е (mean - среднее, sd - дисперсия)
+open.cost = runif($длина, $min, $max)    # равномерный закон растпред-я
+            rnorm(5, mean=2, sd=1)       # нормальное распред-е (mean - среднее, sd - дисперсия)
 
 # кумулятивная сумма 
 cumsum()
@@ -134,10 +135,10 @@ sum(x>0)
 
 # объединение строк
 rbind($имя_строки1=$данные1,
-	  $имя_строки2=$данные2)
+      $имя_строки2=$данные2)
 # объединение столбцов
 cbind($имя_столбца1=$данные1,
-	  $имя_столбца2=$данные2)
+      $имя_столбца2=$данные2)
 
 # разница элементов вектора
 x <- diff(c)
@@ -164,26 +165,26 @@ a = as.Date('2015-05-13')
 as.numeric(a)
 
 # точное задание времени с часовым поясом
-as.POSIXct("2013-09-12 12:05:05", tz="Europe/Moscow")	# в памяти хранит 1 число - кол-во секунд от относительной даты
-POSIXlt	# в памяти хранится лист со значениями секунд, минут, часов, дней, месяцев, лет от относительной даты
+as.POSIXct("2013-09-12 12:05:05", tz="Europe/Moscow")    # в памяти хранит 1 число - кол-во секунд от относительной даты
+POSIXlt    # в памяти хранится лист со значениями секунд, минут, часов, дней, месяцев, лет от относительной даты
 as.POSIXct("12.09.2013 12:05:05",format="%d.%m.%Y %H:%M:%S" tz="UTC")
 
 ISOdate(2014,11,28,19,11,37, tz="GMT")
 
 # задать временную последовательность
-seq(as.POSIXct("2014-10-10", by=month, length=4))	# зависит от часового пояса
-seq(ISOdate(2014,10,10), ISOdate(2015,10,10), "days")	# GMT время
+seq(as.POSIXct("2014-10-10", by=month, length=4))    # зависит от часового пояса
+seq(ISOdate(2014,10,10), ISOdate(2015,10,10), "days")    # GMT время
 
 
-Sys.time()	# выводит системную дату и время
-Sys.timezone()	# выводит системный часовой пояс
-Sys.setenv(TZ='UTC')	# задает часовой пояс в окружении
+Sys.time()    # выводит системную дату и время
+Sys.timezone()    # выводит системный часовой пояс
+Sys.setenv(TZ='UTC')    # задает часовой пояс в окружении
 
 3.4 Атрибуты
 
 attr(a, "Myname") = "test"
-attr(a, "Myname")	# выводит значение атрибута
-attributes(a)	# выводит значения всех атрибутов переменной
+attr(a, "Myname")    # выводит значение атрибута
+attributes(a)    # выводит значения всех атрибутов переменной
 names(x) = c("a", "b" ,"c") # пронаименовать вектор
 
 3.5 Матрицы
@@ -191,7 +192,7 @@ names(x) = c("a", "b" ,"c") # пронаименовать вектор
 # по-умолчанию элементы матрицы заполняются по строкам
 # задать матрицу:
 b = matrix(1:12,3,4)
-b[2,2]	# обращение к конкретному элементу матрицы (строка/столбец, нумерация с 1)
+b[2,2]    # обращение к конкретному элементу матрицы (строка/столбец, нумерация с 1)
 
 #Включить заполнение по строкам:
 a = matrix(data=1:12, nrow=3, ncol=4, byrow=T)
@@ -214,18 +215,18 @@ a=array(c(1:24), dim=c(1,2,3))
 n = c(1,2,3)
 a = c("a","b","c")
 b = c(TRUE,FALSE,TRUE)
-df = data.frame(n,a,b)	# функция создания фрейма
-named(df) = c("N","String", "Flag")	# переименовать столбцы
-df = data.frame(N=n, String=a, b=Flag)	# создать фрейм с нужными названиями
+df = data.frame(n,a,b)    # функция создания фрейма
+named(df) = c("N","String", "Flag")    # переименовать столбцы
+df = data.frame(N=n, String=a, b=Flag)    # создать фрейм с нужными названиями
 
-str(df)	# строковое представление фрейма
-		# кол-во строк фрейма
-ncol(df)	# кол-во столбцов фрейма
-df[2,2]	# обращение к конкретному элементу фрейма
-df[2]	# выделить столбец
+str(df)    # строковое представление фрейма
+        # кол-во строк фрейма
+ncol(df)    # кол-во столбцов фрейма
+df[2,2]    # обращение к конкретному элементу фрейма
+df[2]    # выделить столбец
 df[,2:3] # выделить несколько столбцов
-df[2,]	# выделить строку
-df[df$Flag==TRUE]	# выделить строки столбца Flag, в которых значения TRUE
+df[2,]    # выделить строку
+df[df$Flag==TRUE]    # выделить строки столбца Flag, в которых значения TRUE
 
 # удалить столбцы с NA
 file <- file[, colSums(is.na(file)) == 0]
@@ -240,74 +241,74 @@ file2 <- file2[order(-file2$profit),]
 
 # Задать текущий каталог
 setwd("~/work/R")
-getwd()	# вывести рабочий каталог
+getwd()    # вывести рабочий каталог
 
 # Функция записи в файл
-write.table()	
-write.table(b, file="file.csv", sep="\t")	# запишет b в file.csv и разделит элементы табуляцией
+write.table()    
+write.table(b, file="file.csv", sep="\t")    # запишет b в file.csv и разделит элементы табуляцией
 
 # Функция чтения из файла 
 a = read.table("file.csv")
 
 # Функция для чтения .csv файлов
 read.csv()
-a = read.csv(unz("1.zip", "folder1/folder2/file.csv"))	# прочитать файл из архива
+a = read.csv(unz("1.zip", "folder1/folder2/file.csv"))    # прочитать файл из архива
 
-f = tempfile()	# создать temp file
-download.file("http://site.com/file.zip", f)	# скачать архив
+f = tempfile()    # создать temp file
+download.file("http://site.com/file.zip", f)    # скачать архив
 data = read.csv(unzip(f))
-unlink(f)	# удалить temp
+unlink(f)    # удалить temp
 
 3.8 Ветвление & циклы
 
 # простое ветвление
 if ($условие) {
-	$действие
+    $действие
 }
 
 # альтернативное ветвление
 if ($условие) {
-	$действие1			
+    $действие1            
 } else {
-	$действие2
+    $действие2
 }
 
 # несколько альтернатив
 if ($условие1) {
-	$действие1			
+    $действие1            
 } else if ($условие2) {
-	$действие2
+    $действие2
 }
 
 # цикл
 for (i in 1:5) {
-	print(i)
+    print(i)
 }
 
 # цикл с предусловием 
 k = 5 
 while (k > 0) {
-	cat(k, " ")
-	k=k-1
+    cat(k, " ")
+    k=k-1
 }
 
 # бесконечный цикл 
 repeat {
-	$действие1
-	if ($условие_окончания) break
-	$действие2
+    $действие1
+    if ($условие_окончания) break
+    $действие2
 }
 
 # вместо явных циклов
 # применить для каждого элемента в:
-sapply(v, sqrt)		# для векторов
-lapply(v, sqrt)		# для листов
-apply(v, 1, min)	# для матриц (найти min в строке)
-apply(v, 1:2, min) 	# то же, но поэлементно
-ifelse($условие, $true_действие, $false_действие)	# проверяет на соответствие все элементы вектора
+sapply(v, sqrt)        # для векторов
+lapply(v, sqrt)        # для листов
+apply(v, 1, min)    # для матриц (найти min в строке)
+apply(v, 1:2, min)     # то же, но поэлементно
+ifelse($условие, $true_действие, $false_действие)    # проверяет на соответствие все элементы вектора
 
-seq_len(5)		# возвращает последовательность от 1 до n
-seq_along(a)	# возвращает индексы всех элеменотов вектора "a", то же, что и seq_len(length(a)) 
+seq_len(5)        # возвращает последовательность от 1 до n
+seq_along(a)    # возвращает индексы всех элеменотов вектора "a", то же, что и seq_len(length(a)) 
 
 3.9 Графики
 
@@ -324,8 +325,8 @@ abline(h=20, col="red", lwd=2)
 abline(v=20, col="red", lwd=2)
 
 # гистаграмма
-hist(x, breaks=x1, freq=F, xlab="", ylim=c(0, 0.5),	
-	 ylab="плотность вероятности", main="Гистограмма")
+hist(x, breaks=x1, freq=F, xlab="", ylim=c(0, 0.5),    
+     ylab="плотность вероятности", main="Гистограмма")
 # огибающая
 lines(density(b3), col="$", lwd=$)
 
@@ -336,667 +337,667 @@ plot.zoo(data[, c('equity', 'equity2')], type='1', plot.type='single', screens=c
 
 4. Пакеты для работы с временными рядами
 
-	4.1 quantmod
+    4.1 quantmod
 
-	Позволяет получать кодировки с Yahoo Finance, Google Finance, локальной MySQL, .rdata, .rda, .csv и пр.
+    Позволяет получать кодировки с Yahoo Finance, Google Finance, локальной MySQL, .rdata, .rda, .csv и пр.
 
-	# установка
-	install.packages("quantmod", dependencies=TRUE)
-	library(quantmod)
+    # установка
+    install.packages("quantmod", dependencies=TRUE)
+    library(quantmod)
 
-	# загрузка котировок
-	getSymbols("MSFT", src="yahoo")
-	# график котировок 
-	chartSeries(MSFT)
-	# график за период
-	chartSeries(MSFT["2014-01/2014-04"])
+    # загрузка котировок
+    getSymbols("MSFT", src="yahoo")
+    # график котировок 
+    chartSeries(MSFT)
+    # график за период
+    chartSeries(MSFT["2014-01/2014-04"])
 
-		# преобразовать котировки в недельные
-		to.weekly()
-		# max значения
-		hi(x)
-		# min знаения
-		lo(x)
+        # преобразовать котировки в недельные
+        to.weekly()
+        # max значения
+        hi(x)
+        # min знаения
+        lo(x)
 
-	# свечной график
-	candleChart(MSFT["2013/2014"], theme="black", up.col="green", dn.col="red")
-	# барный график 
-	barChart()
+    # свечной график
+    candleChart(MSFT["2013/2014"], theme="black", up.col="green", dn.col="red")
+    # барный график 
+    barChart()
 
-	# добавить SMA к графику
- 	addSMA(n=20, on=1, col="blue")
- 	# добавить линию
- 	addLines(h=10, on=1,col="green")
+    # добавить SMA к графику
+     addSMA(n=20, on=1, col="blue")
+     # добавить линию
+     addLines(h=10, on=1,col="green")
 
- 	# удалить линию с графика
- 	dropTA("BBands")
+     # удалить линию с графика
+     dropTA("BBands")
 
- 	# цены закрытия/открытия/hi/low/etc..
- 	# столбцы фрейма должны содержать стандартные названия: Open”, “High”, “Low”, “Close”, “Volume”, or “Adjusted”
- 	# при вызове данных функцией getSymbols(), названия фрейма прописываются правильно из-коробки
- 	Op(x)
-	Hi(x)
-	Lo(x)
-	Cl(x)
-	Vo(x)
-	Ad(x)
+     # цены закрытия/открытия/hi/low/etc..
+     # столбцы фрейма должны содержать стандартные названия: Open”, “High”, “Low”, “Close”, “Volume”, or “Adjusted”
+     # при вызове данных функцией getSymbols(), названия фрейма прописываются правильно из-коробки
+     Op(x)
+    Hi(x)
+    Lo(x)
+    Cl(x)
+    Vo(x)
+    Ad(x)
 
- 	4.2 rusquant
+     4.2 rusquant
 
- 	Заточен под наши сервера. Позволяет загружать статистику по малоинтервальным данным - часы, минуты, секунды, тики.
- 	По умолчанию загружается дневной график. Пакет поддерживается Финамом.
- 	Не позволяет загружать большие объёмы данных. Грузить большие данные лучше в нерабочее время.
+     Заточен под наши сервера. Позволяет загружать статистику по малоинтервальным данным - часы, минуты, секунды, тики.
+     По умолчанию загружается дневной график. Пакет поддерживается Финамом.
+     Не позволяет загружать большие объёмы данных. Грузить большие данные лучше в нерабочее время.
 
- 	# установка
- 	install.packages("rusquant", repos="http://r-forge.r-project.org", dependencies=TRUE)
- 	library(rusquant)	
- 	
- 	# дополнительные варианты установки
- 	install.packages("rusquant", contriburl="http://r-forge.r-project.org/bin/windows/contrib/latest/")
-	# или из исходников:
-	install.packages("rusquant", repos="http://R-Forge.R-project.org", type="source")
-	# или скачать архив со страницы https://r-forge.r-project.org/R/?group_id=1175
-	# и поставить из архива (Install from: Package Archive File).
-	
-	# загрузить данные
-	getSymbols("SBER", from="2015-01-01", to=Sys.Date(), src="Finam")
-	# загрузить данные с указанием периода
-		# доступны периоды: 1min, 5min. 10min, 15min, 30min, hour, day, week, month
-	getSymbols("SBER", from=Sys.Date()-1, src="Finam", period="5min")
+     # установка
+     install.packages("rusquant", repos="http://r-forge.r-project.org", dependencies=TRUE)
+     library(rusquant)    
+     
+     # дополнительные варианты установки
+     install.packages("rusquant", contriburl="http://r-forge.r-project.org/bin/windows/contrib/latest/")
+    # или из исходников:
+    install.packages("rusquant", repos="http://R-Forge.R-project.org", type="source")
+    # или скачать архив со страницы https://r-forge.r-project.org/R/?group_id=1175
+    # и поставить из архива (Install from: Package Archive File).
+    
+    # загрузить данные
+    getSymbols("SBER", from="2015-01-01", to=Sys.Date(), src="Finam")
+    # загрузить данные с указанием периода
+        # доступны периоды: 1min, 5min. 10min, 15min, 30min, hour, day, week, month
+    getSymbols("SBER", from=Sys.Date()-1, src="Finam", period="5min")
 
-	# построить график
-	chartSeries(SBER, theme="black")
-	# обавить exp-ю скользяшку (EMA)
-	addEMA(n=20, col="blue")
+    # построить график
+    chartSeries(SBER, theme="black")
+    # обавить exp-ю скользяшку (EMA)
+    addEMA(n=20, col="blue")
 
-	# загрузить тиковые данные
-	getSymbols("SBER", from=Sys.Date()-1, src="Finam", period="tick")
-	# тиковые данные можно преобразовать в лююые другие
-	SBER_15min <- to.period(SBER, "mins", k=15)
+    # загрузить тиковые данные
+    getSymbols("SBER", from=Sys.Date()-1, src="Finam", period="tick")
+    # тиковые данные можно преобразовать в лююые другие
+    SBER_15min <- to.period(SBER, "mins", k=15)
 
-	Данные можно получать с сайта mfd.ru и oanda.ru
+    Данные можно получать с сайта mfd.ru и oanda.ru
 
-	# загрузка списка доступных тикеров
-	date("tikers")
-	# поиск по тикерам
-	tickers[grep("EUR")]
+    # загрузка списка доступных тикеров
+    date("tikers")
+    # поиск по тикерам
+    tickers[grep("EUR")]
 
-	# загрузка данных по тикерам
-		# временные периоды такие же, как на Финаме
-	getSymbols("EUR", from=Sys.Date()-1, src="mfd", period="hour", auto.assign=FALSE)
-	
-	# упорядочить данные
-	order(-s) # по убыванию
-	order(s) # по возрастанию
+    # загрузка данных по тикерам
+        # временные периоды такие же, как на Финаме
+    getSymbols("EUR", from=Sys.Date()-1, src="mfd", period="hour", auto.assign=FALSE)
+    
+    # упорядочить данные
+    order(-s) # по убыванию
+    order(s) # по возрастанию
 
-	4.3 quantmod
+    4.3 quantmod
 
-	4.4 xts
+    4.4 xts
 
-	# упорядочить по дате
-	order.by=dt 
+    # упорядочить по дате
+    order.by=dt 
 
 5. Простейшее тестирование стратегий
-	
-	5.1 Пересечение цены с SMA  (crossMA)
+    
+    5.1 Пересечение цены с SMA  (crossMA)
 
-	library(rusquant)
-	# для стандартизации имени функции данных
-	s <- get(getSymbols("EUR/USD", src="oanda", from="2015-12-01", to="2015-12-10"))
-	# переименовываем столбец (стобей данных только один - с oanda грузятся только цены закрытия)
-	names(s) <- c("Close")
-	# добавляем к данным еще один столбец со значениями SMA для 20 периодов
-	s$sma20 <- SMA(Cl(s), 20)
-	# необходимо определить, какую позицию открывать, исходя из пересечения SMA графиком цен
-	# выбранную позицию записываем в доп. столбец
-	s$position(ifelse(Cl(s)>s$sma20, 1, -1	))
-	# убрать из вектора строки-не числа
-	# s <- s[!is.na(s$position),]
-	s <- na.omit(s)
-	# вычисление equity
-	# лот 0.1, 1пункт = $1, для EURUSD 1пункт=0.0001
-	s$ret <- lag(s$position)*(s$Close-lag(s$Close))*10000 
-	# в первой строке - нулевая прибыль
-	s[1,ret] = 0
-	# кумулятивная сумма 
-	s$equity <- cumsum(s$ret)
-	plot(s$equity)
+    library(rusquant)
+    # для стандартизации имени функции данных
+    s <- get(getSymbols("EUR/USD", src="oanda", from="2015-12-01", to="2015-12-10"))
+    # переименовываем столбец (стобей данных только один - с oanda грузятся только цены закрытия)
+    names(s) <- c("Close")
+    # добавляем к данным еще один столбец со значениями SMA для 20 периодов
+    s$sma20 <- SMA(Cl(s), 20)
+    # необходимо определить, какую позицию открывать, исходя из пересечения SMA графиком цен
+    # выбранную позицию записываем в доп. столбец
+    s$position(ifelse(Cl(s)>s$sma20, 1, -1    ))
+    # убрать из вектора строки-не числа
+    # s <- s[!is.na(s$position),]
+    s <- na.omit(s)
+    # вычисление equity
+    # лот 0.1, 1пункт = $1, для EURUSD 1пункт=0.0001
+    s$ret <- lag(s$position)*(s$Close-lag(s$Close))*10000 
+    # в первой строке - нулевая прибыль
+    s[1,ret] = 0
+    # кумулятивная сумма 
+    s$equity <- cumsum(s$ret)
+    plot(s$equity)
 
-	5.2 Пересечение двух MA (в примере - EMA) 
-	
-	data <- getSymbols("GAZP", from="2015-01-01", to="2015-12-01", src="Finam", period="15min", auto.assign=FALSE)
-	head(data)
-	names(data) <- c("Open" , "High" , "Low" , "Close" , "Volume")
-	# вычисляем && записываем в вектор значения нужных EMA
-	data$ema20 <- EMA(Cl(date), n=20)
-	data$ema80 <- EMA(Cl(date), n=80)
-	# входим в позицию
-	data$position <- ifelse(data$ema20 >= data$ema80, 1, -1) 
-	# удаление нечисловых значений
-	data <- na.omit(data)
-	# вычисление && график equity
-	data$ret <- lag(data$position) * ( data$Close - lag(data$Close) )
-	data$ret[1, "ret"] = 0
-	data$equity <- cumsum(data$ret)
-	plot(data.equity)
+    5.2 Пересечение двух MA (в примере - EMA) 
+    
+    data <- getSymbols("GAZP", from="2015-01-01", to="2015-12-01", src="Finam", period="15min", auto.assign=FALSE)
+    head(data)
+    names(data) <- c("Open" , "High" , "Low" , "Close" , "Volume")
+    # вычисляем && записываем в вектор значения нужных EMA
+    data$ema20 <- EMA(Cl(date), n=20)
+    data$ema80 <- EMA(Cl(date), n=80)
+    # входим в позицию
+    data$position <- ifelse(data$ema20 >= data$ema80, 1, -1) 
+    # удаление нечисловых значений
+    data <- na.omit(data)
+    # вычисление && график equity
+    data$ret <- lag(data$position) * ( data$Close - lag(data$Close) )
+    data$ret[1, "ret"] = 0
+    data$equity <- cumsum(data$ret)
+    plot(data.equity)
 
-	5.3 Простейшая оптимизация
-	
-	# создать функцию
-	test.strategy <- function(data, ema1, ema2, plot.show=TRUE) {
-		data$ema1 <- EMA(Cl(data), n=ema1)
-		data$ema2 <- EMA(Cl(data), n=ema2)
-		data$position <- ifelse(data$ema20 >= data$ema80, 1, -1) 
-		data <- na.omit(data)
-		data$ret <- lag(data$position) * ( data$Close - lag(data$Close) )
-		data$ret[1, "ret"] = 0
-		data$equity <- cumsum(data$ret)
-		if (plot.show) plot(data$equity)
-		return(data$equity[[nrow(data)]])	
-	}
-	# задать цикл оптимизации
-	smax <- -99999
-	ema1.opt <- 0
-	ema2.opt <- 0
-	for (ema1 in seq (1, 99, 1) ) {
-		for (ema2 in seq (ema1+1, 100, 1) ) {
-			s <- test.strategy(data, ema1, ema2, FALSE)
-			if (s > smax) {smax <- s
-							ema1.opt <- ema1
-							ema2.opt <- ema2
-			}
-		}
-	if ( ema1 %% 10 == 0 ) cat ( ema1 , " " , sep="" )
-	}
+    5.3 Простейшая оптимизация
+    
+    # создать функцию
+    test.strategy <- function(data, ema1, ema2, plot.show=TRUE) {
+        data$ema1 <- EMA(Cl(data), n=ema1)
+        data$ema2 <- EMA(Cl(data), n=ema2)
+        data$position <- ifelse(data$ema20 >= data$ema80, 1, -1) 
+        data <- na.omit(data)
+        data$ret <- lag(data$position) * ( data$Close - lag(data$Close) )
+        data$ret[1, "ret"] = 0
+        data$equity <- cumsum(data$ret)
+        if (plot.show) plot(data$equity)
+        return(data$equity[[nrow(data)]])    
+    }
+    # задать цикл оптимизации
+    smax <- -99999
+    ema1.opt <- 0
+    ema2.opt <- 0
+    for (ema1 in seq (1, 99, 1) ) {
+        for (ema2 in seq (ema1+1, 100, 1) ) {
+            s <- test.strategy(data, ema1, ema2, FALSE)
+            if (s > smax) {smax <- s
+                            ema1.opt <- ema1
+                            ema2.opt <- ema2
+            }
+        }
+    if ( ema1 %% 10 == 0 ) cat ( ema1 , " " , sep="" )
+    }
 
- 	# все пары чисел n1 и n2
-	g <- as.matrix(expand.grid(n1,n2))
-	eq <- apply(g, 1, function(r) test1(data, r[1], r[2], FALSE))
-	# номер строки, для которой эквити максимальна:
-	opt.ind <- which.max(eq)
-	# параметры в этой строке:
-	g.opt <- g[opt.ind, ]
-	g.opt
-	test1(data, g.opt[1], g.opt[2], TRUE)
+     # все пары чисел n1 и n2
+    g <- as.matrix(expand.grid(n1,n2))
+    eq <- apply(g, 1, function(r) test1(data, r[1], r[2], FALSE))
+    # номер строки, для которой эквити максимальна:
+    opt.ind <- which.max(eq)
+    # параметры в этой строке:
+    g.opt <- g[opt.ind, ]
+    g.opt
+    test1(data, g.opt[1], g.opt[2], TRUE)
 
-	5.3 Учёт накладных расходов
+    5.3 Учёт накладных расходов
 
-	#
-	# на примере стратегии пересечения цены со скользящей средней
-	#
-	library(rusquant)
-	data <- getSymbols("EURUSD", from=Sys.Date() -3, to=Sys.Date(),
-		src="Finam", period="15min", auto.assign=FALSE)
-	head(data, 3)
-	names(data) <- c("Open", "High", "Low", "Close", "Volume")
-	# можно и так переименовать: colnames(data) <- gsub(".*\\.", "", colnames(data))
-	# копия данных
-	data2 <- data
-	head(data2, 3)
-	# вычеслить EMA
-	data2$ma1 <- EMA( Cl(data), 50) 
-	# параметр нормирования по пунктам
-	pip <- 0.0001
-	# "мёртвая зона" вокруг EMA
-	delta <- 3*pip
-	# алгоритм стратегии
-	data2$pos <- ifelse(data2$Close > data2$ma+delta, 1, 
-						ifelse(data2$Close < data2$ma-delta, -1, 0) )
-	data2 <- na.omit(data2) # убрали строки с NA
-	# результаты сделок
-	data2$ret <- lag(data2$pos)*(data2$Close-lag(data2$Close))/pip
-	data2[1, "ret"] = 0 # в первой строке нулевая прибыль
-	# equity
-	data2$equity <- cumsum(data2$ret) 
-	n <- nrow(data2) # количество строк
-	s <- data2$equity[[n]] # конечная сумма без учёта накладных расходов
-	# расчет накладных расходов
-	# количество сделок (входов)
-	y <- ifelse ( (data2$pos != lag(data2$pos)), abs(data2$pos), 0)	# определение перехода
-	y[1] <- 0 # вместо NA.
-	# k - число сделок
-	k <- sum(y, na.rm=TRUE)+1
-	spread <- 2 # спред 2 пункта .
-	commiss <- 1 # комиссия на круг (в пересчёте на пункты)
-	slip <- 2 # проскальзывание 1 пункт при входе и 1 пункт при выходе
-	# все накладные расходы (в пунктах)
-	overheads <- k*(spread+commiss+slip)
-	# итоговая прибыль/убыток
-	s2 <- s - overheads
+    #
+    # на примере стратегии пересечения цены со скользящей средней
+    #
+    library(rusquant)
+    data <- getSymbols("EURUSD", from=Sys.Date() -3, to=Sys.Date(),
+        src="Finam", period="15min", auto.assign=FALSE)
+    head(data, 3)
+    names(data) <- c("Open", "High", "Low", "Close", "Volume")
+    # можно и так переименовать: colnames(data) <- gsub(".*\\.", "", colnames(data))
+    # копия данных
+    data2 <- data
+    head(data2, 3)
+    # вычеслить EMA
+    data2$ma1 <- EMA( Cl(data), 50) 
+    # параметр нормирования по пунктам
+    pip <- 0.0001
+    # "мёртвая зона" вокруг EMA
+    delta <- 3*pip
+    # алгоритм стратегии
+    data2$pos <- ifelse(data2$Close > data2$ma+delta, 1, 
+                        ifelse(data2$Close < data2$ma-delta, -1, 0) )
+    data2 <- na.omit(data2) # убрали строки с NA
+    # результаты сделок
+    data2$ret <- lag(data2$pos)*(data2$Close-lag(data2$Close))/pip
+    data2[1, "ret"] = 0 # в первой строке нулевая прибыль
+    # equity
+    data2$equity <- cumsum(data2$ret) 
+    n <- nrow(data2) # количество строк
+    s <- data2$equity[[n]] # конечная сумма без учёта накладных расходов
+    # расчет накладных расходов
+    # количество сделок (входов)
+    y <- ifelse ( (data2$pos != lag(data2$pos)), abs(data2$pos), 0)    # определение перехода
+    y[1] <- 0 # вместо NA.
+    # k - число сделок
+    k <- sum(y, na.rm=TRUE)+1
+    spread <- 2 # спред 2 пункта .
+    commiss <- 1 # комиссия на круг (в пересчёте на пункты)
+    slip <- 2 # проскальзывание 1 пункт при входе и 1 пункт при выходе
+    # все накладные расходы (в пунктах)
+    overheads <- k*(spread+commiss+slip)
+    # итоговая прибыль/убыток
+    s2 <- s - overheads
 
-	# всё это в виде функции
-	test3 <- function(data, n, pip=0.0001 , delta=3) {
-		data$ma1 <- EMA (Cl(data), n)
-		delta2 <- delta*pip
-		data$pos <- ifelse(	data$Close > data$ma+delta2, 1,
-							ifelse(data$Close < data$ma-delta2, -1, 0) )
-		data <- na.omit(data)
-		data$ret <- lag(data$pos)*(data$Close-lag(data$Close))/pip
-		data[1, "ret"] = 0
-		data$equity <- cumsum(data$ret)
-		m <- nrow(data)
-		s <- data$equity[ [m] ] 
-		y <- ifelse( (data$pos != lag(data$pos)), abs(data$pos), 0 )
-		y[1] <- 0 
-		k <- sum(y, na.rm=TRUE)+1
-		spread <- 2
-		commiss <- 1 
-		slip <- 2
-		overheads <- k*(spread+commiss+slip)
-		s2 <- s-overheads # прибыль с учётом накл. расходов
-		return (c(s, s2, k))
-	}
+    # всё это в виде функции
+    test3 <- function(data, n, pip=0.0001 , delta=3) {
+        data$ma1 <- EMA (Cl(data), n)
+        delta2 <- delta*pip
+        data$pos <- ifelse(    data$Close > data$ma+delta2, 1,
+                            ifelse(data$Close < data$ma-delta2, -1, 0) )
+        data <- na.omit(data)
+        data$ret <- lag(data$pos)*(data$Close-lag(data$Close))/pip
+        data[1, "ret"] = 0
+        data$equity <- cumsum(data$ret)
+        m <- nrow(data)
+        s <- data$equity[ [m] ] 
+        y <- ifelse( (data$pos != lag(data$pos)), abs(data$pos), 0 )
+        y[1] <- 0 
+        k <- sum(y, na.rm=TRUE)+1
+        spread <- 2
+        commiss <- 1 
+        slip <- 2
+        overheads <- k*(spread+commiss+slip)
+        s2 <- s-overheads # прибыль с учётом накл. расходов
+        return (c(s, s2, k))
+    }
 
-	5.4 Оптимизация функций с двумя параметрами (опт. двух параметров одновременно)
+    5.4 Оптимизация функций с двумя параметрами (опт. двух параметров одновременно)
     # функцию test3 на период EMA и "мертвой зоны"
-   	n <- seq(10, 300, by=5)
-	delta <- seq(-10, 20, by=1)
-	# матрица тестовых значений
-	g <- as.matrix(expand.grid(n, delta))
-	# тест
-	y <- apply(g, 1, function(r) test3(data, n=r[1], delta=r[2]) )
-	# выделяем строку с equity после учёта комиссий
-	s <- y[2, ]
-	# Ищем максимальный элемент :
-	k.opt <- which.max(s)
-	g.opt <- g[k.opt, ]
-	n.opt <- g.opt[[1]]
-	delta.opt <- g.opt[[2]]
-	n.opt; delta.opt	# вывод данных
-	test3(data, n.opt, delta=delta.opt)	# проверка 
+       n <- seq(10, 300, by=5)
+    delta <- seq(-10, 20, by=1)
+    # матрица тестовых значений
+    g <- as.matrix(expand.grid(n, delta))
+    # тест
+    y <- apply(g, 1, function(r) test3(data, n=r[1], delta=r[2]) )
+    # выделяем строку с equity после учёта комиссий
+    s <- y[2, ]
+    # Ищем максимальный элемент :
+    k.opt <- which.max(s)
+    g.opt <- g[k.opt, ]
+    n.opt <- g.opt[[1]]
+    delta.opt <- g.opt[[2]]
+    n.opt; delta.opt    # вывод данных
+    test3(data, n.opt, delta=delta.opt)    # проверка 
 
 6. Графики функций с 2-мя переменными
-	
-	6.1 Изометрические графики
+    
+    6.1 Изометрические графики
 
-	y <- x <- seq(-10, 10, length=30)
-	f <- function (x, y) { 
-		r=sqrt(x^2+y^2) 
-		10*sin(r)/r 
-		}
-	# построение матрицы со значениями параметров и функции
-	z = outer(x, y, f) # Получили матрицу 30 x 3 0 .
-	# расцветка графика
-	col <- rainbow(30, start=0.05, end=0.75)
-	# функция рисования графика
-	persp(x, y, z, col=col, theta=55, phi=25)
+    y <- x <- seq(-10, 10, length=30)
+    f <- function (x, y) { 
+        r=sqrt(x^2+y^2) 
+        10*sin(r)/r 
+        }
+    # построение матрицы со значениями параметров и функции
+    z = outer(x, y, f) # Получили матрицу 30 x 3 0 .
+    # расцветка графика
+    col <- rainbow(30, start=0.05, end=0.75)
+    # функция рисования графика
+    persp(x, y, z, col=col, theta=55, phi=25)
 
-	# параметры полотна графика (здесь разбиваем полотно на матрицу графиков)
-	par(	mfrow = c(2, 3), # будем выводить графики в матрице 2x3
-			oma = c(0, 0, 0, 0), # поля для всего листа графиков
-			mar = c(0, 0, 0, 0) # поля сверху или справа от графика 
-	) 
-	# графики
-	# 1-й
-	persp(x, y, z, col='lightgreen', theta=50, phi=30)	# 1-й
-	# 2-й
-	col <- rainbow(30, start=0 , end = 0.95)
-	persp(x, y, z, col=col , theta=50 , phi=30)
-	# 3-й
-	col <- heat.colors(30)
-	persp(x, y, z, col=col, theta=50, phi=30) 
-	# 4-й
-	col <- terrain.colors(30)
-	persp(x, y, z, col=col, theta=50, phi=30)
-	# 5-й
-	col <- topo.colors(30)
-	persp(x, y, z, col=col, theta=50, phi=30)
-	# 6-й
-	col <- cm.colors(30)
-	persp(x, y, z, col=col, theta=50, phi=30)
-	
-	# пакет rgl
-	library (rgl)
-	persp3d (x, y, z1, col=rainbow(length(x)) )
+    # параметры полотна графика (здесь разбиваем полотно на матрицу графиков)
+    par(    mfrow = c(2, 3), # будем выводить графики в матрице 2x3
+            oma = c(0, 0, 0, 0), # поля для всего листа графиков
+            mar = c(0, 0, 0, 0) # поля сверху или справа от графика 
+    ) 
+    # графики
+    # 1-й
+    persp(x, y, z, col='lightgreen', theta=50, phi=30)    # 1-й
+    # 2-й
+    col <- rainbow(30, start=0 , end = 0.95)
+    persp(x, y, z, col=col , theta=50 , phi=30)
+    # 3-й
+    col <- heat.colors(30)
+    persp(x, y, z, col=col, theta=50, phi=30) 
+    # 4-й
+    col <- terrain.colors(30)
+    persp(x, y, z, col=col, theta=50, phi=30)
+    # 5-й
+    col <- topo.colors(30)
+    persp(x, y, z, col=col, theta=50, phi=30)
+    # 6-й
+    col <- cm.colors(30)
+    persp(x, y, z, col=col, theta=50, phi=30)
+    
+    # пакет rgl
+    library (rgl)
+    persp3d (x, y, z1, col=rainbow(length(x)) )
 
-	6.1 3D-графики 
-
-#####
-	# пакет plot3D
-	#
-	library (plot3D)
-	persp3D (x, y, z1, contour=TRUE)
-
-	# 3D-гистаграмма
-	x2 <- y2 <- seq(-4, 4, by = 0.5)
-	f2 <- function( x2, y2 ) { (25-(x2^2-y2^2) ) }
-	z2 <- outer(x2, y2, f2)
-	par( mfrow = c(1, 1), oma = c(2, 2, 2, 2) )
-	hist3D(x2, y2, z2, border = "black")
-
-	# 2D график (для функции с 2-мя переменными)
-	library (plot3D)
-	image2D (z2, x2, y2)
-	image2D (z, n1, n2, contour=TRUE, xlab="n1", ylab="n2")
-		# сохранить настройки текущих графиков
-		old.par <- par()
-		# два графика рядом
-		image2D (z.train, n1, n2, contour=TRUE, xlab="n1", ylab="n2", main="На обучающих данных")
-		image2D (z.test, n1, n2, contour=TRUE, xlab="n1", ylab="n2", main="На тестовых данных")
+    6.1 3D-графики 
 
 #####
-	# пакет rgl
-	#
-	library(rgl)
-	rgl.open( ); bg3d("white")
-	plot3d(g[ ,1], z3, g[ ,2], labels=labels, type="s",
-			size=2, lwd=2, col=rainbow(length(g[ , 2])) )
-	identify3d (g [ , 1], z3, g[ , 2], labels=labels)
-	# щёлкаем правой кнопкой мыши по любой точке
-	# средняя кнопка - выход из режима
-	rgl.close() 
+    # пакет plot3D
+    #
+    library (plot3D)
+    persp3D (x, y, z1, contour=TRUE)
+
+    # 3D-гистаграмма
+    x2 <- y2 <- seq(-4, 4, by = 0.5)
+    f2 <- function( x2, y2 ) { (25-(x2^2-y2^2) ) }
+    z2 <- outer(x2, y2, f2)
+    par( mfrow = c(1, 1), oma = c(2, 2, 2, 2) )
+    hist3D(x2, y2, z2, border = "black")
+
+    # 2D график (для функции с 2-мя переменными)
+    library (plot3D)
+    image2D (z2, x2, y2)
+    image2D (z, n1, n2, contour=TRUE, xlab="n1", ylab="n2")
+        # сохранить настройки текущих графиков
+        old.par <- par()
+        # два графика рядом
+        image2D (z.train, n1, n2, contour=TRUE, xlab="n1", ylab="n2", main="На обучающих данных")
+        image2D (z.test, n1, n2, contour=TRUE, xlab="n1", ylab="n2", main="На тестовых данных")
 
 #####
-	# пакет car
-	#
-	library ( car )
-	rgl.open()
-	scatter3d(g[ ,1], z3, g[ ,2], labels=labels, neg.res.col="grey", pos.res.col=rainbow(1 0 0 0 ), point.col="black")
+    # пакет rgl
+    #
+    library(rgl)
+    rgl.open( ); bg3d("white")
+    plot3d(g[ ,1], z3, g[ ,2], labels=labels, type="s",
+            size=2, lwd=2, col=rainbow(length(g[ , 2])) )
+    identify3d (g [ , 1], z3, g[ , 2], labels=labels)
+    # щёлкаем правой кнопкой мыши по любой точке
+    # средняя кнопка - выход из режима
+    rgl.close() 
+
+#####
+    # пакет car
+    #
+    library ( car )
+    rgl.open()
+    scatter3d(g[ ,1], z3, g[ ,2], labels=labels, neg.res.col="grey", pos.res.col=rainbow(1 0 0 0 ), point.col="black")
 
 ####
-	# пакет Plotly
-	install.packages("plotly")
+    # пакет Plotly
+    install.packages("plotly")
 
 7. Учёт сделок
-	
+    
 #####
-	# при работе с временными рядами
-	#
-	# нумирация трейдов
-	TradeID <- function(state) {
-		x <- diff(state); x[1] <- state[1]
-		cumsum( as.numeric( as.logical(abs(x)) & abs(state) )) * abs(state)
-	}
-	# учёт входов
-	TradeEntries <- function(state) {
-		x <- diff(state)
-		x[1] <- state[1]
-		as.numeric(as.logical(x) * state)
-	}
+    # при работе с временными рядами
+    #
+    # нумирация трейдов
+    TradeID <- function(state) {
+        x <- diff(state); x[1] <- state[1]
+        cumsum( as.numeric( as.logical(abs(x)) & abs(state) )) * abs(state)
+    }
+    # учёт входов
+    TradeEntries <- function(state) {
+        x <- diff(state)
+        x[1] <- state[1]
+        as.numeric(as.logical(x) * state)
+    }
 
-	# учёт выходов
-	TradeExits <- function(state) {
-		x <- as.numeric( as.logical( diff(state) * lag(state) ))
-		x[1] <- 0
-		x
-	}
+    # учёт выходов
+    TradeExits <- function(state) {
+        x <- as.numeric( as.logical( diff(state) * lag(state) ))
+        x[1] <- 0
+        x
+    }
 
-	#смена позиции 
-	TradeCh <- function(state) {
-		x <- diff(state)
-		x[1] <- state[1]
-		return(x)
-	}
+    #смена позиции 
+    TradeCh <- function(state) {
+        x <- diff(state)
+        x[1] <- state[1]
+        return(x)
+    }
 
-	
+    
 ##### при работе с векторами
-	#
-	# нумерация трейдов
-	TradeID <- function(state) {
-		cumsum( as.numeric( as.logical( abs( c(state[1], diff(state) ))) & abs(state) )) * abs(state)
-	}
+    #
+    # нумерация трейдов
+    TradeID <- function(state) {
+        cumsum( as.numeric( as.logical( abs( c(state[1], diff(state) ))) & abs(state) )) * abs(state)
+    }
 
-	# учёт входов 
-	TradeEntries <- function(state) {
-		as.numeric( as.logical(c(state[1], diff(state))) * state )
-	}
+    # учёт входов 
+    TradeEntries <- function(state) {
+        as.numeric( as.logical(c(state[1], diff(state))) * state )
+    }
 
-	# учёт выходов
-	TradeExits <- function(state) {
-		as.numeric( c(FALSE, as.logical( diff(state) * state[-length(state)] )))
-	}
+    # учёт выходов
+    TradeExits <- function(state) {
+        as.numeric( c(FALSE, as.logical( diff(state) * state[-length(state)] )))
+    }
 
-	# смена позиции
-	TradeCh <- function(state) {
-		c(state[1], diff(state))
-	}
+    # смена позиции
+    TradeCh <- function(state) {
+        c(state[1], diff(state))
+    }
 
 ##### проверка ветора "state" на правильность значений
-	#
-	if(!all( state %in% c(-1,0,1) )) {
-		stop("state must be a numeric vector with -1,0,1")
-	}
+    #
+    if(!all( state %in% c(-1,0,1) )) {
+        stop("state must be a numeric vector with -1,0,1")
+    }
 
 ##### пересечение линий
-	#
-	# для векторов
-	Cross <- function(x1,x2) {
-		x <- diff(x1>x2)
-		x[1] <- 0
-		x[x<0] <- 0
-		return (as.logical(c(0,x)))
-	}
-	# для рядов
-	Cross <- function(x1,x2) {
-		x <- diff(x1>x2)
-		x[1] <- 0
-		x[x<0] <- 0
-		return ( sign(x) )
-	}
+    #
+    # для векторов
+    Cross <- function(x1,x2) {
+        x <- diff(x1>x2)
+        x[1] <- 0
+        x[x<0] <- 0
+        return (as.logical(c(0,x)))
+    }
+    # для рядов
+    Cross <- function(x1,x2) {
+        x <- diff(x1>x2)
+        x[1] <- 0
+        x[x<0] <- 0
+        return ( sign(x) )
+    }
 
 8. Доходность
 
 ##### для работы с рядами
-	#
-	library(TTR)
-		# SR (simple return) для элеменов ряда
-		data$SR <- lag(data$state)*ROC(data$x, type="discrete")
-		data$SR[1] <- 0
-			# вычислить итоговую прибыль
-			data$equity <- cumprod(data$R + 1) - 1
-			profit <- data$x[[1]]*as.numeric(last(data$equity))
+    #
+    library(TTR)
+        # SR (simple return) для элеменов ряда
+        data$SR <- lag(data$state)*ROC(data$x, type="discrete")
+        data$SR[1] <- 0
+            # вычислить итоговую прибыль
+            data$equity <- cumprod(data$R + 1) - 1
+            profit <- data$x[[1]]*as.numeric(last(data$equity))
 
-		# LR (log return)
-		data$R.log <- lag(data$state) * ROC(data$x, type="continuous")
-		data$R.log[1] <- 0
-			# вычислить итоговую прибыль
-			data$equity <- cumsum(data$R.log)
-			profit <- data$x[[1]] * (exp( as.numeric(last(data$equity)) ) - 1)
+        # LR (log return)
+        data$R.log <- lag(data$state) * ROC(data$x, type="continuous")
+        data$R.log[1] <- 0
+            # вычислить итоговую прибыль
+            data$equity <- cumsum(data$R.log)
+            profit <- data$x[[1]] * (exp( as.numeric(last(data$equity)) ) - 1)
 
-	# можно использовать вместо ROC() функцию из библиотеки quantmod
-	library(quantmod)
-		R <- Delt(x, type="arithmetic")	# simple return
-		R <- Delt(x, type="log")		# log return
+    # можно использовать вместо ROC() функцию из библиотеки quantmod
+    library(quantmod)
+        R <- Delt(x, type="arithmetic")    # simple return
+        R <- Delt(x, type="log")        # log return
  
-	# библиотека PerfomanceAnalytics
-	library(PerfomanceAnalytics)
-		# кумулятивная сумма equity = прибыль
-		profit <- Return.cumulative(data$diff, geometric=FALSE)
-		# simple return и прибыль
-		data$SR <- Return.calculate(data$x, method="discrete")
-		data$SR[1] <- 1
-		profit <- Return.cumulative(data$SR, geometric=TRUE)*s1
-		# log return 
-		data$LR <- Return.calculate(data$x, method="log")  
-		data$LR[1] <- 0
-		profit <- (exp(Return.cumulative(data$LR, geometric=FALSE)) - 1) * s1
-		
-	# торговля с реинвестированием прибыли
-	# количество актива
-	w <- s0 / data$x[[1]]
-	# через абсолютные доходности
-		# количество актива 
-		data$w <- data$state[[1]] * s0/data$x[[1]]
-		data$delta <- 0
-		data$equity.abs <- s0
-		for ( i in 2:nrow(data) ) { 
-			data$delta[i] <- data$w[[i-1]] * ( data$x[[i]] - data$x[[i-1]] )
-			data$equity.abs[i] <- data$equity.abs[[i-1]] + data$delta[[i]]
-			data$w[i] <- data$state[[i]] * data$equity.abs[[i]] / data$x[[i]]
-		}
-		profit.abs <- sum(data$delta2)
-	# через относительные доходности 
-		data$R <- data$state  * ROC(data$x, type="discrete")
-		sata$R[1] <- 0
-		# вычислить итоговую прибыль
-		data$equity <- s0*cumprod(data$R + 1)
-		profit <- as.numeric(last(data$equity) - s0)
+    # библиотека PerfomanceAnalytics
+    library(PerfomanceAnalytics)
+        # кумулятивная сумма equity = прибыль
+        profit <- Return.cumulative(data$diff, geometric=FALSE)
+        # simple return и прибыль
+        data$SR <- Return.calculate(data$x, method="discrete")
+        data$SR[1] <- 1
+        profit <- Return.cumulative(data$SR, geometric=TRUE)*s1
+        # log return 
+        data$LR <- Return.calculate(data$x, method="log")  
+        data$LR[1] <- 0
+        profit <- (exp(Return.cumulative(data$LR, geometric=FALSE)) - 1) * s1
+        
+    # торговля с реинвестированием прибыли
+    # количество актива
+    w <- s0 / data$x[[1]]
+    # через абсолютные доходности
+        # количество актива 
+        data$w <- data$state[[1]] * s0/data$x[[1]]
+        data$delta <- 0
+        data$equity.abs <- s0
+        for ( i in 2:nrow(data) ) { 
+            data$delta[i] <- data$w[[i-1]] * ( data$x[[i]] - data$x[[i-1]] )
+            data$equity.abs[i] <- data$equity.abs[[i-1]] + data$delta[[i]]
+            data$w[i] <- data$state[[i]] * data$equity.abs[[i]] / data$x[[i]]
+        }
+        profit.abs <- sum(data$delta2)
+    # через относительные доходности 
+        data$R <- data$state  * ROC(data$x, type="discrete")
+        sata$R[1] <- 0
+        # вычислить итоговую прибыль
+        data$equity <- s0*cumprod(data$R + 1)
+        profit <- as.numeric(last(data$equity) - s0)
 
 9. Источники котировок
 
-	# статистика в .cvs формате
-	finance.yahoo.com/q/hp?s=AAPL
-	www.google.com/finance/historical?q=MSFT
-	www.dukascopy.com/swiss/english/marketwatch/historical/
-	www.finam.ru/profile/forex/eur-usd
-	mfd.ru/export/
-	# возможна выгрузка .cvs данных из trade-программ через меню экспорт:
-	# MetaTrader: Сервис -> Архив котировок (F2) -> выбрать нужную валютную пару, таймрм -> Экспорт
-	# Ninja Trader: Tools -> Historical Data Manager -> Export -> выбрать нужный фин.инструмент; тики или минуты; диапазон дат -> Export
+    # статистика в .cvs формате
+    finance.yahoo.com/q/hp?s=AAPL
+    www.google.com/finance/historical?q=MSFT
+    www.dukascopy.com/swiss/english/marketwatch/historical/
+    www.finam.ru/profile/forex/eur-usd
+    mfd.ru/export/
+    # возможна выгрузка .cvs данных из trade-программ через меню экспорт:
+    # MetaTrader: Сервис -> Архив котировок (F2) -> выбрать нужную валютную пару, таймрм -> Экспорт
+    # Ninja Trader: Tools -> Historical Data Manager -> Export -> выбрать нужный фин.инструмент; тики или минуты; диапазон дат -> Export
 
-	# выгрузка .csv из буфера обмена в R
-	data1 <- read.table( pipe("pbpaste") )
-	# для Win
-	data1 <- read.table("clipboard")
-	# проверка типа данных
-	class(data1)
-	[1] "data.frame"
-	# есди данные с Yahoo, то строки инвертированны, вернуть обратно:
-	data1 <- data1[rev(rownames(data1)), , drop=FALSE]
+    # выгрузка .csv из буфера обмена в R
+    data1 <- read.table( pipe("pbpaste") )
+    # для Win
+    data1 <- read.table("clipboard")
+    # проверка типа данных
+    class(data1)
+    [1] "data.frame"
+    # есди данные с Yahoo, то строки инвертированны, вернуть обратно:
+    data1 <- data1[rev(rownames(data1)), , drop=FALSE]
 
-	# выгрузка данных из файла (данные из MetaTrader)
-	data <- read.table (
-		file="D:/EURUSD1.csv",  # имя файла
-		sep="," ,				# разделитель - запятая
-		header=F ,				# заголовки столбцов отсутствуют
-		as.is=T 				# не преобразовывать строки в факторы
-	)				
-	head(data, 3)
-	tm <- strptime (
-		paste ( data [ , 1 ] , sprintf ( "%05s" ,data [ , 2 ] ) ) ,
-		format="%Y.%m.%d %H:%M" , tz="EET" 
-	)
-	head(tm)
-	#
-	# замена "," на "."
-	temp.frame$var1 <- as.numeric( gsub("\\,", ".", file[[var1]]) )
- 	#
-	# преобразование таблицы в ряд
-	library(xts)
-	Sys.setenv(TZ='UTC') # время - UTC
-	data2 <- xts( x=data[, c(3:6)], order.by=tm, tzone='UTC' )
-	colnames(data2) <- c("Open", "High", "Low", "Close")
-	#
-	# преобразование периодичности
-	data3 = to.period( data2,
-		period='hours',
-		indexAt="startof"
-	)
-	# изменить временное окно
-	win <- '2014-12-01/2014-12-31'
-	data4 <- data3[win]
+    # выгрузка данных из файла (данные из MetaTrader)
+    data <- read.table (
+        file="D:/EURUSD1.csv",  # имя файла
+        sep="," ,                # разделитель - запятая
+        header=F ,                # заголовки столбцов отсутствуют
+        as.is=T                 # не преобразовывать строки в факторы
+    )                
+    head(data, 3)
+    tm <- strptime (
+        paste ( data [ , 1 ] , sprintf ( "%05s" ,data [ , 2 ] ) ) ,
+        format="%Y.%m.%d %H:%M" , tz="EET" 
+    )
+    head(tm)
+    #
+    # замена "," на "."
+    temp.frame$var1 <- as.numeric( gsub("\\,", ".", file[[var1]]) )
+     #
+    # преобразование таблицы в ряд
+    library(xts)
+    Sys.setenv(TZ='UTC') # время - UTC
+    data2 <- xts( x=data[, c(3:6)], order.by=tm, tzone='UTC' )
+    colnames(data2) <- c("Open", "High", "Low", "Close")
+    #
+    # преобразование периодичности
+    data3 = to.period( data2,
+        period='hours',
+        indexAt="startof"
+    )
+    # изменить временное окно
+    win <- '2014-12-01/2014-12-31'
+    data4 <- data3[win]
 
-	# REST API Yahoo finance
-		# список доступных тикеров
-		http://finance.yahoo.com/webservice/v1/symbols/allcurrencies/quote
-		# в JSON формате
-		http://finance.yahoo.com/webservice/v1/symbols/allcurrencies/quote?format=json
-	
-	# загрузка дневных данных 	
-	ticker <- "EUR=X" # обратная валютная пара EUR/USD .
-	start.date <- "2014-10-01"
-	end.date <- Sys.Date()
-	url <- paste0( "http://ichart.finance.yahoo.com/table.csv?s=",
-					ticker,
-				# начальная дата
-					"&a=", as.numeric(substr(start.date, 6, 7) )-1,	# месяц
-					"&b=", substr(start.date, 9, 10),					# день
-					"&c=", substr(start.date, 1, 4),					# год
-				# конечная дата
-					"&d=", as.numeric( substr(end.date, 6, 7) )-1,
-					"&e=", substr(end.date, 9, 10),
-					"&f=", substr(end.date, 1, 4),
-					"&g=d&ignore=.csv", sep=""
-			)
-	data <- read.csv(url, as.is=TRUE)
-	library(xts)
-	data2 <- as.xts( data[, -1], order.by=as.POSIXct(data$Date) )
-	library(quantmod)
-	chartSeries(data2, theme='white')
+    # REST API Yahoo finance
+        # список доступных тикеров
+        http://finance.yahoo.com/webservice/v1/symbols/allcurrencies/quote
+        # в JSON формате
+        http://finance.yahoo.com/webservice/v1/symbols/allcurrencies/quote?format=json
+    
+    # загрузка дневных данных     
+    ticker <- "EUR=X" # обратная валютная пара EUR/USD .
+    start.date <- "2014-10-01"
+    end.date <- Sys.Date()
+    url <- paste0( "http://ichart.finance.yahoo.com/table.csv?s=",
+                    ticker,
+                # начальная дата
+                    "&a=", as.numeric(substr(start.date, 6, 7) )-1,    # месяц
+                    "&b=", substr(start.date, 9, 10),                    # день
+                    "&c=", substr(start.date, 1, 4),                    # год
+                # конечная дата
+                    "&d=", as.numeric( substr(end.date, 6, 7) )-1,
+                    "&e=", substr(end.date, 9, 10),
+                    "&f=", substr(end.date, 1, 4),
+                    "&g=d&ignore=.csv", sep=""
+            )
+    data <- read.csv(url, as.is=TRUE)
+    library(xts)
+    data2 <- as.xts( data[, -1], order.by=as.POSIXct(data$Date) )
+    library(quantmod)
+    chartSeries(data2, theme='white')
 
-	# загрузка внутридневных котировк
-		# список доступных тикеров
-		http://in.finance.yahoo.com/lookup
-	ticker <- "EURUSD=X"
-	url <- paste0("http://chartapi.finance.yahoo.com/instrument/1.0/",
-					ticker, "/chartdata;type=quote;range=1d/csv" )
-	# получаем первые 17 строк и удаляем первую строку
-	metadata <- readLines(paste(url, collapse=""), 17)[-1]
-	# создаём список пар "параметр, значение"
-	metadata <- strsplit(metadata, ":")
-	# заменяем "-" в названиях на "_"
-	names(metadata) <- sub( "-", "_", sapply(metadata, '[', 1) )
-	metadata <- lapply( metadata, function(x) strsplit( x[-1], ",") [[1]] )
-	# преобразуем смещение относительно GMT в число
-	metadata$gmtoffset <- as.numeric(metadata$gmtoffset)
-	data <- as.xts( read.zoo(	paste(url, collapse=""), sep=",",
-								header=FALSE, skip=17, FUN=function(i) .POSIXct(as.numeric(i)) 
-							) 
-				)
-	# заголовки столбцов
-	colnames(data) <- metadata$values[-1]
-	# сохраняем метаданные как атрибуты
-	xtsAttributes(data) <- metadata[ c("ticker","Company_Name", "Exchange_Name", "unit", "timezone", "gmtoffset") ]
+    # загрузка внутридневных котировк
+        # список доступных тикеров
+        http://in.finance.yahoo.com/lookup
+    ticker <- "EURUSD=X"
+    url <- paste0("http://chartapi.finance.yahoo.com/instrument/1.0/",
+                    ticker, "/chartdata;type=quote;range=1d/csv" )
+    # получаем первые 17 строк и удаляем первую строку
+    metadata <- readLines(paste(url, collapse=""), 17)[-1]
+    # создаём список пар "параметр, значение"
+    metadata <- strsplit(metadata, ":")
+    # заменяем "-" в названиях на "_"
+    names(metadata) <- sub( "-", "_", sapply(metadata, '[', 1) )
+    metadata <- lapply( metadata, function(x) strsplit( x[-1], ",") [[1]] )
+    # преобразуем смещение относительно GMT в число
+    metadata$gmtoffset <- as.numeric(metadata$gmtoffset)
+    data <- as.xts( read.zoo(    paste(url, collapse=""), sep=",",
+                                header=FALSE, skip=17, FUN=function(i) .POSIXct(as.numeric(i)) 
+                            ) 
+                )
+    # заголовки столбцов
+    colnames(data) <- metadata$values[-1]
+    # сохраняем метаданные как атрибуты
+    xtsAttributes(data) <- metadata[ c("ticker","Company_Name", "Exchange_Name", "unit", "timezone", "gmtoffset") ]
 
 10. Логика с памятью
 
-	# заменить NA на предыдущий элемент
-		library(zoo)
-		na.locf(x)
+    # заменить NA на предыдущий элемент
+        library(zoo)
+        na.locf(x)
 
-	# функция для удаления лишних сигналов 
-		exrem <- function(x) {
-						x$a <- na.locf( x )
-						x$a <- ifelse( is.na(x$a) | is.nan(x$a) | is.infinite(x$a), 0, x$a )
-						ind <- which( x$a != lag(x$a) )
-						x$y <- rep( NA, length(x$a) )
-						x$y[ (ind-1) ] = x$a[ind]
-						return(x$y)
-					}
+    # функция для удаления лишних сигналов 
+        exrem <- function(x) {
+                        x$a <- na.locf( x )
+                        x$a <- ifelse( is.na(x$a) | is.nan(x$a) | is.infinite(x$a), 0, x$a )
+                        ind <- which( x$a != lag(x$a) )
+                        x$y <- rep( NA, length(x$a) )
+                        x$y[ (ind-1) ] = x$a[ind]
+                        return(x$y)
+                    }
 
 10.1 Торговая система: Выход стохастика из зон пере-купленности/проданности
 
-	# границы зоны стохастика
-	stlo <- 0.25 
-	sthi <- 0.75
-	# точки пересечения стохастика с границами зоны
-	data$sigUp <- Cross( data4$slowD, stlo, FALSE )
-	data$sigDn <- Cross( sthi, data4$slowD, FALSE )
-	# точки позиций
-	data$sig <- data$sigUp - data4$sigDn
-	data.temp <- data[ data4$sig != 0 ]
-	# убираем лишнее и добавляем очишенные данные в ряд
-	data.temp$sig.clean <- exrem(data.temp$sig)
-	# убираем лишние столбцы
-	data.temp$sig <- NULL
-	data.temp <- na.omit (data.temp)
-	data$sig <- NULL
-	#
-	data.temp2 <- merge.xts(data, data.temp$sig.clean)
-	colnames(data.temp2)[ ncol(data.temp2) ] <- "sig"
-	data.temp2 <- na.locf( data.temp2, "sig", "state" )
-	data.temp2$sig[ is.na(data.temp2$sig) ] <- 0
-	data.temp2$state[ is.na(data.temp2$state) ] <- 0
-	pip <- 0.0001
-	data.temp2$ret <- lag(data.temp2$state) * ( data.temp2$Close-lag(data.temp2$Close) ) / pip
-	data.temp2$ret[1] <- 0
-	data.temp2$equity <- cumsum(data.temp2$ret)
-	#
-	# визуализация
-	chartSeries(data.temp2[ , c("Open", "High", "Low", "Close") ] ,
-				name="EUR/USD H1", theme='white' 
-			)
-	addTA(data.temp2$slowD, col="blue")
-		addLines( h = c(stlo, sthi), on=2, col='red' )
-	addTA( data.temp2$state, yrange=c(-1.2, 1.2) )
-	addTA( data.temp2$equity, col="dark green" )
-	#		
-	zoomChart ( "2014-11-20::" )
-	zooom ( ) # интерактивно
-	zoomChart ( ) # вернуть исходный масштаб
+    # границы зоны стохастика
+    stlo <- 0.25 
+    sthi <- 0.75
+    # точки пересечения стохастика с границами зоны
+    data$sigUp <- Cross( data4$slowD, stlo, FALSE )
+    data$sigDn <- Cross( sthi, data4$slowD, FALSE )
+    # точки позиций
+    data$sig <- data$sigUp - data4$sigDn
+    data.temp <- data[ data4$sig != 0 ]
+    # убираем лишнее и добавляем очишенные данные в ряд
+    data.temp$sig.clean <- exrem(data.temp$sig)
+    # убираем лишние столбцы
+    data.temp$sig <- NULL
+    data.temp <- na.omit (data.temp)
+    data$sig <- NULL
+    #
+    data.temp2 <- merge.xts(data, data.temp$sig.clean)
+    colnames(data.temp2)[ ncol(data.temp2) ] <- "sig"
+    data.temp2 <- na.locf( data.temp2, "sig", "state" )
+    data.temp2$sig[ is.na(data.temp2$sig) ] <- 0
+    data.temp2$state[ is.na(data.temp2$state) ] <- 0
+    pip <- 0.0001
+    data.temp2$ret <- lag(data.temp2$state) * ( data.temp2$Close-lag(data.temp2$Close) ) / pip
+    data.temp2$ret[1] <- 0
+    data.temp2$equity <- cumsum(data.temp2$ret)
+    #
+    # визуализация
+    chartSeries(data.temp2[ , c("Open", "High", "Low", "Close") ] ,
+                name="EUR/USD H1", theme='white' 
+            )
+    addTA(data.temp2$slowD, col="blue")
+        addLines( h = c(stlo, sthi), on=2, col='red' )
+    addTA( data.temp2$state, yrange=c(-1.2, 1.2) )
+    addTA( data.temp2$equity, col="dark green" )
+    #        
+    zoomChart ( "2014-11-20::" )
+    zooom ( ) # интерактивно
+    zoomChart ( ) # вернуть исходный масштаб
 
-	# доп функции
-	# Функция задержки для векторов и матриц
+    # доп функции
+    # Функция задержки для векторов и матриц
 
 mylag <- function (m, nlag = 1) {
   if (is.null(dim(m))) {
@@ -1033,33 +1034,33 @@ na.prev <- function(x){
 }
 
 10.2 Обучение торговой системы 
-	
-	# среднее
-	mean(x)
-	# медиана
-	median(x)
-	# квантиль (вероятность, что переменная будет равна значению или находиться левее)
-		# для диапазона
-		quantile(x, seq(0,1, by=0.2))
-		# фиксированный 
-		quantile(x, 0.5)
+    
+    # среднее
+    mean(x)
+    # медиана
+    median(x)
+    # квантиль (вероятность, что переменная будет равна значению или находиться левее)
+        # для диапазона
+        quantile(x, seq(0,1, by=0.2))
+        # фиксированный 
+        quantile(x, 0.5)
 
 11. Эффективность ТС
-	library(PerformanceAnalytics)
-	11.1 Коэффициенты
-	# на вход подавать SR ряд
-		# SharpeRatio {PerformanceAnalytics}
-			SharpeRatio.annualized(returns, scale=1)
-		# SortinoRatio
-			SortinoRatio(returns)
-		# CalmarRatio
-			CalmarRatio(returns, scale=1)
-		# SterlingRatio
-			SterlingRatio(returns, scale=1)
+    library(PerformanceAnalytics)
+    11.1 Коэффициенты
+    # на вход подавать SR ряд
+        # SharpeRatio {PerformanceAnalytics}
+            SharpeRatio.annualized(returns, scale=1)
+        # SortinoRatio
+            SortinoRatio(returns)
+        # CalmarRatio
+            CalmarRatio(returns, scale=1)
+        # SterlingRatio
+            SterlingRatio(returns, scale=1)
 
-	12.1  Drawdowns
-	# на вход подавать SR
-		# таблица по n-худшим просадкам (по-умолчанию geometric = TRUE)
-		table.Drawdowns(R, top = 1000, digits = 4)
-		# поиск просадок
-		findDrawdowns(R, geometric = TRUE, ...)
+    12.1  Drawdowns
+    # на вход подавать SR
+        # таблица по n-худшим просадкам (по-умолчанию geometric = TRUE)
+        table.Drawdowns(R, top = 1000, digits = 4)
+        # поиск просадок
+        findDrawdowns(R, geometric = TRUE, ...)
