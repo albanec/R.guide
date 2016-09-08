@@ -8,7 +8,12 @@ gpg -a --export E084DAB9 | sudo apt-key add -
 sudo apt-get update 
 sudo apt-get install r-base
 # установка r-studio
-sudo apt-get install libjpeg62 libcurl4-openssl-dev
+#sudo apt-get install libjpeg62 libcurl4-openssl-dev libxml2-dev libmariadb-client-lgpl-dev
+apt-get update && apt-get install -y \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    libmariadb-client-lgpl-dev \
+    libssl-dev
 wget https://download1.rstudio.org/rstudio-0.99.489-amd64.deb
 sudo dpkg -i https://download1.rstudio.org/rstudio-0.99.489-amd64.deb
 
