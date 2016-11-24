@@ -1063,9 +1063,148 @@ na.prev <- function(x){
         # SterlingRatio
             SterlingRatio(returns, scale=1)
 
-    12.1  Drawdowns
+    11.2  Drawdowns
     # на вход подавать SR
         # таблица по n-худшим просадкам (по-умолчанию geometric = TRUE)
         table.Drawdowns(R, top = 1000, digits = 4)
         # поиск просадок
         findDrawdowns(R, geometric = TRUE, ...)
+
+
+13. Параллельные вычисления
+13.0 foreach
+# позволяет строить циклы аналогично *apply функциям (но быстрее и удобнее) + параллелизовать
+
+# базовая конструкция
+foreach(i = 1:10) %do% 
+{
+  что то
+}
+
+# в случае параллельной работы (с пакетами doParallel или doFuture)
+foreach(row.num=1:nrow(my.matrix), 
+        .export=c('x', 'y'),
+        .packages=c('z')) %dopar% 
+{
+  return(Vectorize(fib)(my.matrix[row.num,]))
+}
+13.1 parallel
+# Пакет основан на сборке multicore и snow пакетов. Включён в Rbase
+
+# регистрация SOCK кластера 
+parallel_cluster <- 
+  detectCores() %>%
+  makeCluster(., type = 'PSOCK')
+# регистрация mcore кластера 
+parallel_cluster <- 
+  detectCores() %>%
+  makeCluster(., type = 'FORK')
+
+# остановка кластера
+stopCluster(parallel_cluster)
+parallel_cluster <- c()  
+# проверка остановки кластера
+if(!is.null(parallel_cluster)) {
+  stopCluster(parallel_cluster)
+  parallel_cluster <- c()
+}
+
+13.2 doParallel
+# Обертка для foreach и parallel библиотек (добавляет %dopar% в foreach цепочки)
+#
+library('foreach')
+library('doParallel')
+# регистрация mc worker'ов
+# по-умолчанию запускается doParallelMC для Unix и  doParallelSNOW для Win
+workers <- 4
+registerDoParallel(cores = workers) 
+# можно собрать кластер и зарегистрировать его
+cl <- makePSOCKcluster(2)
+registerDoParallel(cl)
+
+# определить число и тип worker'ов
+getDoParWorkers()
+getDoParName()
+# определить версию пакета
+getDoParVersion()
+
+# базовые конструкции
+# Returns a list
+foreach(i = 1:4) %dopar% 
+{
+  j <- i + 1
+  sqrt(j)
+}
+# Returns a vector
+foreach(i = 1:4, .combine = c) %dopar% 
+{
+  j <- i + 1
+  sqrt(j)
+}
+# Returns a matrix
+foreach(i = 1:4, .combine = rbind) %dopar% 
+{
+  j <- i + 1
+  matrix(c(i, j, sqrt(j)), nrow = 1)
+}
+# Returns a data frame
+foreach(i = 1:4, .combine = rbind) %dopar% 
+{
+  j <- i + 1
+  data.frame(i = i, j = j, sqrt.j = sqrt(j))
+}
+
+# использование mcore опций 
+mcoptions <- list(preschedule=FALSE, set.seed=FALSE)
+foreach(i=1:3, .options.multicore=mcoptions) %dopar% sqrt(i)
+
+13.3 doFuture
+# по-сути то же, что и doParallel, но добавляет %dopar% в future-цепочки
+# плюс, добавляет автоматический экспорт текущего env в кластеры (что облегчает работу) 
+library('doFuture')
+
+# регистрация mc worker'ов
+workers <- 4
+registerDoFuture(cores = workers) 
+plan(multiprocess)
+# регистрация кластеров
+registerDoFuture()
+cl <- makeCluster(4)
+plan(cluster, workers = cl)
+# регистрация snow-кластера
+registerDoFuture()
+cl <- makeCluster(4)
+plan(cluster, workers=cl)
+# регистрация MPI-кластера
+registerDoFuture()
+cl <- makeCluster(4, type="MPI")
+plan(cluster, workers=cl)
+
+14. Асинхронные вычисления 
+14.1 future
+# позволяет писать выражения с отложенным выполнением 
+
+## базовая конструкция
+# с помощью присвоения
+plan(eager)
+a %<-% slow_sum(x[1:50]
+# или a %<-% slow_sum(x[1:50] %plan% eager 
+y <- a
+# в функциональном стиле
+plan(eager)
+f <- future( slow_sum(x[1:50]) )
+y <- value(f)
+
+# доступные сценарии
+eager # sequentially
+lazy  # only if needed
+multiprocess  # in parallel
+cluster # on a set of machines
+
+# сценарии могут быть вложеными
+plan(list(cluster, multiprocess))
+a %<-% {
+  c %<-% slow_sum(x[1:25])
+  d %<-% slow_sum(x[26:50])
+  c + d
+}
