@@ -1072,42 +1072,88 @@ na.prev <- function(x){
 
 
 13. Параллельные вычисления
-13.0 foreach
-# позволяет строить циклы аналогично *apply функциям (но быстрее и удобнее) + параллелизовать
+    13.0 foreach
+# позволяет строить циклы аналогично *apply функциям + параллелизовать
 
 # базовая конструкция
 foreach(i = 1:10) %do% 
 {
   что то
 }
+# вложенные циклы
+foreach(i = 1:3, .combine = "c") %:%
+    foreach(j = 1:3, .combine = "c") %do% {
+        i*j
+    }
+  
+# то же, но с условием
+foreach(a = rnorm(25), .combine = "c") %:%
+    when(a >= 0) %do%
+        sqrt(a)
+
+# итераторы
+require(iterators)
+foreach (i = icount(2000), .combine = "+")
+foreach (time = iter(jan2010$DEP_TIME[1:2000], chunksize = 500), .combine = "+")
+
+jan.matrix = matrix(jan2010$DEP_TIME[1:2000], ncol=500)
+ans <- foreach(times = iter(jan.matrix,by = "row"), .combine = "+") %do% {
+    count.hours(times)
+}
+
+# жесткое разделение задач по ядрам
+foreach(byAirline = isplit(jan2010$DEP_TIME, jan2010$UNIQUE_CARRIER), .combine = cbind) %do%
 
 # в случае параллельной работы (с пакетами doParallel или doFuture)
-foreach(row.num=1:nrow(my.matrix), 
-        .export=c('x', 'y'),
-        .packages=c('z')) %dopar% 
-{
-  return(Vectorize(fib)(my.matrix[row.num,]))
+foreach(row.num = 1:nrow(my.matrix), 
+    .export = c('x', 'y'),
+    .packages = c('z')) %dopar% {
+    return(
+        Vectorize(fib)(my.matrix[row.num,])
+    )
 }
-13.1 parallel
+    13.1 parallel
 # Пакет основан на сборке multicore и snow пакетов. Включён в Rbase
 
+### multicore
+# базовые функции
+mcparallel(task1()) # запланировать задачу 
+mccollect(list(task1, task2)) # выполнить и собрать данные 
+    
+mclapply(data, task(), mc.cores = 4)
+mclapply(1:4, time.it, mc.cores = 2, mc.preschedule = FALSE) # авто-балансировка нагрузки
+# распределение задач по ядрам
+nr <- nrow(jan2010)
+ncores <- 4
+chunks <- split(1:nr, rep(1:ncores, each = nr / ncores))
+    
+pvec() # mc функция для работы с векторами
+
+### SNOW
 # регистрация SOCK кластера 
 parallel_cluster <- 
-  detectCores() %>%
-  makeCluster(., type = 'PSOCK')
+    detectCores() %>%
+    makeCluster(., type = 'PSOCK')
 # регистрация mcore кластера 
 parallel_cluster <- 
-  detectCores() %>%
-  makeCluster(., type = 'FORK')
-
+    detectCores() %>%
+    makeCluster(., type = 'FORK')
 # остановка кластера
 stopCluster(parallel_cluster)
 parallel_cluster <- c()  
 # проверка остановки кластера
 if(!is.null(parallel_cluster)) {
-  stopCluster(parallel_cluster)
-  parallel_cluster <- c()
+    stopCluster(parallel_cluster)
+    parallel_cluster <- c()
 }
+# визуализация тайминга кластера
+tm <- snow.time(clusterApply(cl, 1:6, do.kmeans.nclusters))
+plot(tm)
+# балансировка нагрузки
+clusterApplyLB()
+# распределение задач по кластерам
+clusterSplit(cl,jan2010$DEP_TIME)
+
 
 13.2 doParallel
 # Обертка для foreach и parallel библиотек (добавляет %dopar% в foreach цепочки)
@@ -1118,10 +1164,11 @@ library('doParallel')
 # по-умолчанию запускается doParallelMC для Unix и  doParallelSNOW для Win
 workers <- 4
 registerDoParallel(cores = workers) 
-# можно собрать кластер и зарегистрировать его
+stopImplicitCluster()
+# можно собрать PSOCK-кластер и зарегистрировать его
 cl <- makePSOCKcluster(2)
 registerDoParallel(cl)
-
+stopCluster(cl)
 # определить число и тип worker'ов
 getDoParWorkers()
 getDoParName()
@@ -1155,8 +1202,14 @@ foreach(i = 1:4, .combine = rbind) %dopar%
 }
 
 # использование mcore опций 
-mcoptions <- list(preschedule=FALSE, set.seed=FALSE)
-foreach(i=1:3, .options.multicore=mcoptions) %dopar% sqrt(i)
+mcoptions <- list(preschedule = FALSE, set.seed = TRUE, .inorder = FALSE)
+foreach(i = 1:3, .options.multicore = mcoptions) %dopar% sqrt(i)
+
+# жесткое разнесение задач по процессам
+registerDoParallel(4)
+mat.log <- foreach(col = iter(stocks[,-c(1,2)], by = "col"), .combine = "cbind") %dopar% {
+    log.returns(col)}
+stopImplicitCluster()
 
 13.3 doFuture
 # по-сути то же, что и doParallel, но добавляет %dopar% в future-цепочки
