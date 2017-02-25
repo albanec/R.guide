@@ -1023,7 +1023,11 @@
         findDrawdowns(R, geometric = TRUE, ...)
 
 13. Параллельные вычисления
-    
+    ## Задача оптимизации параллельных процессов:
+    # Integer Mapping
+    # Output Aggregation
+    # Load Balancing
+
     13.0 foreach
         # позволяет строить циклы аналогично *apply функциям + параллелизовать
         ## базовая конструкция
@@ -1044,7 +1048,7 @@
 
         # итераторы
         require(iterators)
-        foreach(i = icount(2000), .combine = '+')
+        foreach(i = icount(2000), .combine = '+') %do% {}
         foreach(time = iter(jan2010$DEP_TIME[1:2000], chunksize = 500), 
             .combine = '+') %do% {}
 
